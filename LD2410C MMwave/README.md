@@ -25,7 +25,7 @@ esphome-ld2410c-mmwave.yaml
 
 Most of it is best practices and the rest is straight from the ESPHome site https://esphome.io/components/sensor/ld2410.html
 
-##Why can't I get it work?
+## Why can't I get it work?
 
 You will see my code UART does not use the standard GPIO1 and GPIO3, I never got it to work on those pins.
 Instead, I use GPIO16 (RX) and GPIO17 (TX), that solved all my issues.
