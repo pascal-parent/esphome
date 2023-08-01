@@ -1,4 +1,4 @@
-# My ESP Home Scripts
+# My ESPHome Scripts
 
 ***Note: This work is in progress!***
 
