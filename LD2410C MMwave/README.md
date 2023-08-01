@@ -17,7 +17,7 @@ Add some solder, a couple of wires, ESPHome and voila, one reliable radar sensor
 ## What will you find here?
 
 ***The wiring diagram*** 
-![Version 0.1](LD2410C MMwave/Images/Cuircuit-Diagram-V1.png)
+![Version 0.1](Images/Cuircuit-Diagram-V1.png)
 
 ***The code***
 
