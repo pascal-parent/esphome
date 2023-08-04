@@ -1,0 +1,370 @@
+################################################################################
+# Substitution Variables
+################################################################################
+substitutions:
+  device_name: "esphome-weather-station"
+  device_internal_name: "esphome_weather_station"
+  device_friendly_name: ESPHome Weather Station
+  device_ip_address: xxx.xxx.xxx.xxx
+  device_sampling_time: 5s # For testing
+
+################################################################################
+# Globals
+################################################################################
+globals: ##to set default reboot behavior
+  - id: wifi_connection
+    type: bool
+    restore_value: no
+    initial_value: "false"
+
+################################################################################
+# Board Configuration
+################################################################################
+esphome:
+  name: ${device_name}
+  friendly_name: ${device_friendly_name}
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+    #version: 2.0.0
+
+################################################################################
+# Enable logging
+################################################################################
+logger:
+  baud_rate: 0
+  logs:
+    sensor: INFO
+    binary_sensor: INFO
+    text_sensor: INFO
+
+################################################################################
+# Enable Home Assistant API
+################################################################################
+api:
+  reboot_timeout: 0s
+  encryption:
+    key: !secret api_encryption_key
+
+ota:
+  safe_mode: true
+  reboot_timeout: 10min
+  num_attempts: 5
+  password: !secret web_server_password
+
+################################################################################
+# WiFi
+################################################################################
+wifi:
+  networks:
+    - ssid: !secret wifi_ssid
+      password: !secret wifi_password
+  power_save_mode: HIGH
+
+  manual_ip:
+    static_ip: ${device_ip_address}
+    gateway: xxx.xxx.xxx.xxx
+    subnet: 255.255.255.0
+    dns1: 8.8.8.8
+    dns2: 1.1.1.1
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: ${device_friendly_name}
+    password: !secret web_server_password
+
+################################################################################
+# Web Server
+################################################################################
+web_server:
+  port: 80
+  version: 2
+  include_internal: true
+  auth:
+    username: !secret web_server_user
+    password: !secret web_server_password
+  local: true
+
+captive_portal:
+
+################################################################################
+# Status led
+################################################################################
+status_led:
+  pin:
+    number: GPIO2
+    inverted: false
+
+################################################################################
+# I2C
+################################################################################
+i2c:
+  sda: GPIO21
+  scl: GPIO22
+  scan: True
+
+################################################################################
+# UART - I may need this later for a Air Quality Sensor PM2.5
+################################################################################
+#uart:
+#  id: ${device_internal_name}_uart_presence
+#  tx_pin: GPIO17
+#  rx_pin: GPIO16
+#  baud_rate: 256000
+#  parity: NONE
+#  stop_bits: 1
+
+################################################################################
+# Home Assistant Sensors
+################################################################################
+time:
+  - platform: homeassistant
+    id: internal_time
+
+################################################################################
+# Sun Sensors
+################################################################################
+sun:
+  latitude: -26.268453°
+  longitude: 28.011981°
+
+################################################################################
+# Text Sensors
+################################################################################
+text_sensor:
+  #-------------------------------------------------------------------------------
+  # ESP32 internal sensors
+  #-------------------------------------------------------------------------------
+  - platform: wifi_info
+    ip_address:
+      name: IP Address
+      id: ${device_internal_name}_ip_address
+    ssid:
+      name: Connected SSID
+      id: ${device_internal_name}_connected_ssid
+    mac_address:
+      name: Mac Wifi Address
+      id: ${device_internal_name}_mac_address
+
+  - platform: version
+    name: "ESPHome Version"
+    hide_timestamp: true
+
+  #-------------------------------------------------------------------------------
+  # Custom Text sensors
+  #-------------------------------------------------------------------------------
+  - platform: template
+    name: Uptime Human Readable
+    id: ${device_internal_name}_uptime_human
+    icon: mdi:clock-start
+
+  #-------------------------------------------------------------------------------
+  # Sun sensors
+  #-------------------------------------------------------------------------------
+
+  - platform: sun
+    name: Sun Next Sunrise
+    type: sunrise
+
+  - platform: sun
+    name: Sun Next Sunset
+    type: sunset
+
+################################################################################
+# Binary Sensors
+################################################################################
+binary_sensor:
+  # ESP Status
+  - platform: status
+    name: "Status"
+    id: ${device_internal_name}_device_status
+
+################################################################################
+# Dallas Sensor
+################################################################################
+dallas:
+  - pin: GPIO4
+    id: dallas_hub
+
+################################################################################
+# Sensors
+################################################################################
+sensor:
+  #-------------------------------------------------------------------------------
+  # ESP Generic Sensors
+  #-------------------------------------------------------------------------------
+
+  # Internal Temperature
+  - platform: internal_temperature
+    name: Internal Temperature
+    id: device_temperature
+    update_interval: ${device_sampling_time}
+
+  # WiFi
+  - platform: wifi_signal
+    name: "WiFi Signal Sensor"
+    id: ${device_internal_name}_wifi_signal_sensor
+    update_interval: ${device_sampling_time}
+
+  # Uptime
+  - platform: uptime
+    name: "Uptime Sensor"
+    id: ${device_internal_name}_uptime_sensor
+    update_interval: ${device_sampling_time}
+    on_raw_value:
+      then:
+        - text_sensor.template.publish:
+            id: ${device_internal_name}_uptime_human
+            state: !lambda |-
+              int seconds = round(id(${device_internal_name}_uptime_sensor).raw_state);
+              int days = seconds / (24 * 3600);
+              seconds = seconds % (24 * 3600);
+              int hours = seconds / 3600;
+              seconds = seconds % 3600;
+              int minutes = seconds /  60;
+              seconds = seconds % 60;
+              return (
+                (days ? to_string(days) + "d " : "") +
+                (hours ? to_string(hours) + "h " : "") +
+                (minutes ? to_string(minutes) + "m " : "") +
+                (to_string(seconds) + "s")
+              ).c_str();
+
+  #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  # Sun sensors - Will be used later
+  #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  - platform: sun
+    name: Sun Elevation
+    type: elevation
+
+  - platform: sun
+    name: Sun Azimuth
+    type: azimuth
+
+  #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  # Internal sensors
+  #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+  #-------------------------------------------------------------------------------
+  # BME280 Sensors (0x76)
+  #-------------------------------------------------------------------------------
+  - platform: bme280
+    temperature:
+      name: "BME280 Temperature"
+      id: ${device_internal_name}_bme280_temperature
+      oversampling: 16x
+    pressure:
+      name: "Pressure"
+      id: ${device_internal_name}_pressure
+    humidity:
+      name: "Humidity"
+      id: ${device_internal_name}_humidity
+    address: 0x76
+    update_interval: ${device_sampling_time}
+
+  #-------------------------------------------------------------------------------
+  # GY-302/BH1750 Light Sensor (0x23)
+  #-------------------------------------------------------------------------------
+  - platform: bh1750
+    name: "BH1750 Illuminance"
+    id: ${device_internal_name}_illuminance
+    address: 0x23
+    update_interval: ${device_sampling_time}
+
+  #-------------------------------------------------------------------------------
+  # Dallas Sensor
+  #-------------------------------------------------------------------------------
+  - platform: dallas
+    #address: 0x453c1ff648208028
+    index: 0
+    name: "Dallas Temperature"
+    id: ${device_internal_name}_dallas_temperature
+    resolution: 10
+
+  #-------------------------------------------------------------------------------
+  # CCS811 Air Quality Control Sensor (0x5A)
+  #-------------------------------------------------------------------------------
+  - platform: ccs811
+    eco2:
+      name: "eCO2 Value"
+      id: ${device_internal_name}_eco2
+    tvoc:
+      name: "Total Volatile Organic Compound"
+      id: ${device_internal_name}_tvoc
+    version:
+      name: CCS811 Version
+      id: ${device_internal_name}_ccs811_version
+    address: 0x5A
+    temperature: ${device_internal_name}_dallas_temperature
+    humidity: ${device_internal_name}_humidity
+    update_interval: ${device_sampling_time}
+
+  #-------------------------------------------------------------------------------
+  # LTR390 UV and Ambient Light Sensor (0x53)
+  #-------------------------------------------------------------------------------
+  - platform: ltr390
+    uv_index:
+      name: "UV Index"
+      id: ${device_internal_name}_uv_index
+    uv:
+      name: "UV"
+      id: ${device_internal_name}_uv
+    light:
+      name: "LTR390 Illiminance"
+      id: ${device_internal_name}_LTR390_illuminance
+    ambient_light:
+      name: "LTR390 Ambient Light"
+      id: ${device_internal_name}_ambient_light
+    address: 0x53
+    update_interval: ${device_sampling_time}
+
+  #-------------------------------------------------------------------------------
+  # Wind speed - To Do!
+  #-------------------------------------------------------------------------------
+
+  #-------------------------------------------------------------------------------
+  # Wind direction - To Do!
+  #-------------------------------------------------------------------------------
+
+  #-------------------------------------------------------------------------------
+  # Rain - To Do
+  #-------------------------------------------------------------------------------
+
+  # Rain detection FY-37 - To Do
+
+  # Rain Gauge - To Do
+
+  # Rainfall per Minute - To Do
+
+  # Total Daily Rain - To Do
+
+################################################################################
+# Switch
+################################################################################
+switch:
+  # Internal Switches
+  - platform: restart
+    name: "Restart"
+    id: device_restart
+
+  - platform: safe_mode
+    name: Use Safe Mode
+    id: device_safe_mode
+
+################################################################################
+# Interval
+################################################################################
+interval:
+  - interval: 10s
+    then:
+      - if:
+          condition:
+            wifi.connected:
+          then:
+            - lambda: |-
+                id(wifi_connection) = true;
+          else:
+            - lambda: |-
+                id(wifi_connection) = false;
