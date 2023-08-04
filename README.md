@@ -8,7 +8,7 @@ This example code is supplied **"as is"** with no warranties of any kind, it wor
 I've tried to document it sufficiently that it is readable and easy to understand.
 
 ## Content
-This is a collection of ESPHome YAML scripts I use.
+This is a collection of ESPHome YAML scripts I use, each project has its own folder, please read the readme file in those folders for more information of that project.
 
 - LD2410C MMWave Sensor Module
 - Weather Station [Added 04 Aug 2023]
