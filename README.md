@@ -11,3 +11,4 @@ I've tried to document it sufficiently that it is readable and easy to understan
 This is a collection of ESPHome YAML scripts I use.
 
 - LD2410C MMWave Sensor Module
+- Weather Station [Added 04 Aug 2023]
