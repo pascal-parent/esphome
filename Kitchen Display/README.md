@@ -2,7 +2,7 @@
 
 ***Note: This project is in active development!***
 
-![Version 0.1](Images/ESPHome-Energy-Display-Photo-v0.1.jpg)
+![Version 0.1](Images/ESPHome-Energy-Display-Photo-v0.2.jpg)
 
 ## Warning!
 
