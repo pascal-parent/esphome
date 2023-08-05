@@ -17,15 +17,18 @@ Since this display is to be mounted in the kitchen, I threw everything and the k
 
 ### Updates
 
-- Added MmWave Presence Sensor [4 Aug 2023]
-- Moved Time to the right area [4 Aug 2023]
+#### 4 Aug 2023
+- Added MmWave Presence Sensor 
+- Added Presence icon on the left of the WiFi icon. 
+- Moved Time to the right area.
+- Remove CO2 and TVOC from bottom bar and removed the sensor.
+- Cleaned up YAML file and added some comments.
 
 ### Coming next 
 
-- Add CO2 MQ-2 Gas/Smoke sensor to the bottom section
-- Add LPG MQ-6 sensor to the bottom section
-- Add Sonar Tank BLE Sensor (Mopeka Pro) to the right bottom section
-- Remove CO2 and TVOC from bottom bar
+- Add CO2 MQ-2 Gas/Smoke sensor to the bottom section.
+- Add LPG MQ-6 sensor reading to the bottom section.
+- Add Sonar Tank BLE Sensor (Mopeka Pro) reading to the right bottom section.
 
 ## Assumptions
 

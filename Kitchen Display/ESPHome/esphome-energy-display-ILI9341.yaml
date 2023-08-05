@@ -2,9 +2,9 @@
 # Substitution Variables
 ################################################################################
 substitutions:
-  device_name: "esphome-energy-display"
-  device_internal_name: "esphome_energy_display"
-  device_friendly_name: ESPHome Energy Display
+  device_name: "esphome-kitchen-display"
+  device_internal_name: "esphome_kitchen_display"
+  device_friendly_name: ESPHome Kitchen Display
   device_ip_address: xxx.xxx.xxx.xxx
   device_sampling_time: 30s
 
@@ -23,15 +23,6 @@ globals: ##to set default reboot behavior
 esphome:
   name: ${device_name}
   friendly_name: ${device_friendly_name}
-  # Boot Automations
-  on_boot:
-    # ...
-    then:
-      # ToDo: Fix bug
-      # Set the screen to 75% brightness
-      - output.set_level:
-          id: backlight_pwm
-          level: "75%"
 
 esp32:
   board: esp32dev
@@ -121,15 +112,23 @@ spi:
   miso_pin: GPIO19
 
 ################################################################################
-# UART - not currently used
+# UART
 ################################################################################
-#uart:
-# id: internal_uart
-# tx_pin: GPIO1
-# rx_pin: GPIO3
-# baud_rate: 256000
-# parity: NONE
-# stop_bits: 1
+uart:
+  id: ${device_internal_name}_uart_presence
+  tx_pin: GPIO17
+  rx_pin: GPIO16
+  baud_rate: 256000
+  parity: NONE
+  stop_bits: 1
+
+################################################################################
+# LD2410 Sensor
+################################################################################
+ld2410:
+  timeout: 5s
+  max_move_distance: 6m
+  max_still_distance: 0.75m
 
 ################################################################################
 # Home Assistant Sensors
@@ -204,6 +203,21 @@ binary_sensor:
   - platform: status
     name: "Status"
     id: ${device_internal_name}_device_status
+
+  # LD2410
+  - platform: ld2410
+    has_target:
+      name: Presence
+    has_moving_target:
+      name: Moving Target
+    has_still_target:
+      name: Still Target
+
+  # Presence
+  - platform: homeassistant
+    id: presence
+    entity_id: binary_sensor.esphome_kitchen_energy_display_presence
+    internal: True
 
 ################################################################################
 # Sensors
@@ -299,16 +313,18 @@ sensor:
     entity_id: sensor.ss_battery_soc
     unit_of_measurement: "%"
 
+  # Grid Frequency
   - platform: homeassistant
     name: "Grid Frequency"
     id: grid_frequency
     entity_id: sensor.ss_grid_frequency
 
-  # Load shedding stage
+  # Local Load shedding stage
   - platform: homeassistant
     id: local_load_shedding_stage
     entity_id: sensor.loadshedding_local_status
 
+  # National Loadshedding Stage
   - platform: homeassistant
     id: national_load_shedding_stage
     entity_id: sensor.loadshedding_national_status
@@ -356,22 +372,19 @@ sensor:
     update_interval: ${device_sampling_time}
 
   #-------------------------------------------------------------------------------
-  # CCS811 Air Quality Control Sensor (0x5A)
+  # LD2410D Millimeter Wave Sensor
   #-------------------------------------------------------------------------------
-  - platform: ccs811
-    eco2:
-      name: "eCO2 Value"
-      id: eco2
-    tvoc:
-      name: "Total Volatile Organic Compound"
-      id: tvoc
-    version:
-      name: CCS811 Version
-      id: ccs811_version
-    address: 0x5A
-    temperature: temperature
-    humidity: relative_humidity
-    update_interval: ${device_sampling_time}
+  - platform: ld2410
+    moving_distance:
+      name: Moving Distance
+    still_distance:
+      name: Still Distance
+    moving_energy:
+      name: Move Energy
+    still_energy:
+      name: Still Energy
+    detection_distance:
+      name: Detection Distance
 
 ################################################################################
 # Switch
@@ -416,7 +429,7 @@ display:
       it.fill(Color::BLACK);
 
       // Vertical Divider  
-      it.line(160, 40, 160, 210, my_white);
+      it.line(135, 40, 135, 210, my_white);
 
       // ## Header ##
 
@@ -426,70 +439,73 @@ display:
       // # Weather Icons
       if (id(weather_forcast_condition).state == "clear-night")
       {
-         it.printf(145, 10, id(icon_font_17), my_yellow, "%s", "\U000F0594"); // clear-night
+         it.printf(140, 10, id(icon_font_17), my_yellow, "%s", "\U000F0594"); // clear-night
       }
       else if (id(weather_forcast_condition).state == "cloudy")
       {
-         it.printf(145, 10, id(icon_font_17), my_white, "%s", "\U000F0590"); // cloudy
+         it.printf(140, 10, id(icon_font_17), my_white, "%s", "\U000F0590"); // cloudy
       }  
       else if (id(weather_forcast_condition).state == "fog")
       {
-         it.printf(145, 10, id(icon_font_17), my_white, "%s", "\U000F0591"); // fog
+         it.printf(140, 10, id(icon_font_17), my_white, "%s", "\U000F0591"); // fog
       } 
       else if (id(weather_forcast_condition).state == "hail")
       {
-         it.printf(145, 10, id(icon_font_17), my_white, "%s", "\U000F0592"); // hail
+         it.printf(140, 10, id(icon_font_17), my_white, "%s", "\U000F0592"); // hail
       } 
       else if (id(weather_forcast_condition).state == "lightning")
       {
-         it.printf(145, 10, id(icon_font_17), my_white, "%s", "\U000F0593"); // lightning
+         it.printf(140, 10, id(icon_font_17), my_white, "%s", "\U000F0593"); // lightning
       } 
       else if (id(weather_forcast_condition).state == "lightning-rainy")
       {
-         it.printf(145, 10, id(icon_font_17), my_white, "%s", "\U000F067E"); // lightning-rainy
+         it.printf(140, 10, id(icon_font_17), my_white, "%s", "\U000F067E"); // lightning-rainy
       } 
       else if (id(weather_forcast_condition).state == "partlycloudy")
       {
-         it.printf(145, 10, id(icon_font_17), my_white, "%s", "\U000F0595"); // partlycloudy
+         it.printf(140, 10, id(icon_font_17), my_white, "%s", "\U000F0595"); // partlycloudy
       }
       else if (id(weather_forcast_condition).state == "pouring")
       {
-         it.printf(145, 10, id(icon_font_17), my_white, "%s", "\U000F0596"); // pouring
+         it.printf(140, 10, id(icon_font_17), my_white, "%s", "\U000F0596"); // pouring
       }
       else if (id(weather_forcast_condition).state == "rainy")
       {
-         it.printf(145, 10, id(icon_font_17), my_white, "%s", "\U000F0597"); // rainy
+         it.printf(140, 10, id(icon_font_17), my_white, "%s", "\U000F0597"); // rainy
       }
       else if (id(weather_forcast_condition).state == "snowy")
       {
-         it.printf(145, 10, id(icon_font_17), my_white, "%s", "\U000F0598"); // snowy
+         it.printf(140, 10, id(icon_font_17), my_white, "%s", "\U000F0598"); // snowy
       }
       else if (id(weather_forcast_condition).state == "snowy-rainy")
       {
-         it.printf(145, 10, id(icon_font_17), my_white, "%s", "\U000F0F35"); // snowy-rainy
+         it.printf(140, 10, id(icon_font_17), my_white, "%s", "\U000F0F35"); // snowy-rainy
       }
       else if (id(weather_forcast_condition).state == "sunny")
       {
-         it.printf(145, 10, id(icon_font_17), my_yellow, "%s", "\U000F0599"); // sunny
+         it.printf(140, 10, id(icon_font_17), my_yellow, "%s", "\U000F0599"); // sunny
       }
       else if (id(weather_forcast_condition).state == "windy")
       {
-         it.printf(145, 10, id(icon_font_17), my_yellow, "%s", "\U000F059D"); // windy
+         it.printf(140, 10, id(icon_font_17), my_yellow, "%s", "\U000F059D"); // windy
       }
       else if (id(weather_forcast_condition).state == "windy-variant")
       {
-         it.printf(145, 10, id(icon_font_17), my_yellow, "%s", "\U000F059E"); // windy-variant
+         it.printf(140, 10, id(icon_font_17), my_yellow, "%s", "\U000F059E"); // windy-variant
       }
       else if (id(weather_forcast_condition).state == "exceptional")
       {
-         it.printf(145, 10, id(icon_font_17), my_yellow, "%s", "\U000F0026"); // exceptional
+         it.printf(140, 10, id(icon_font_17), my_yellow, "%s", "\U000F0026"); // exceptional
       }
 
       // #Weather Min / Max Temp
-      it.printf(165, 10, id(roboto_15_bold), "%.0f-%.0f°C", id(weather_forcast_min_temp).state, id(weather_forcast_max_temp).state);
+      it.printf(160, 10, id(roboto_15_bold), "%.0f-%.0f°c", id(weather_forcast_min_temp).state, id(weather_forcast_max_temp).state);
 
       // #Time
-      it.strftime(250, 10, id(roboto_15_bold), "%H:%M", id(internal_time).now());
+      //it.strftime(225, 10, id(roboto_15_bold), "%H:%M", id(internal_time).now());
+
+      // #Motion Status
+      it.printf(275, 10, id(icon_font_17), "%s", id(presence) ? "\U000F0D91" : "\U000F1435"); //Motion Status
 
       // #Wifi Status
       it.printf(295, 10, id(icon_font_17), "%s", id(wifi_connection) ? "\U000F05A9" : "\U000F05AA"); //Wifi Status
@@ -500,7 +516,18 @@ display:
       // #- Left Column -#
       // Solar Energy 
       it.printf(10, 50, id(icon_font_17), "%s", "\U000F0A72");
-      it.printf(30, 50, id(roboto_15_bold), "%.0fw", id(solar_power).state);
+
+      if (id(solar_power).state > 1999 && id(solar_power).state < 2400) {
+        it.printf(30, 50, id(roboto_15_bold), "%.0fw", my_pumpkin, id(solar_power).state); 
+      } 
+      else if (id(solar_power).state > 2399) 
+      {
+        it.printf(30, 50, id(roboto_15_bold), "%.0fw", my_green, id(solar_power).state); 
+      } 
+      else if (id(solar_power).state < 2000)
+      {
+        it.printf(30, 50, id(roboto_15_bold), "%.0fw", my_white, id(solar_power).state);
+      }
 
       // #Battery state
       it.printf(10, 72, id(icon_font_17), "%s", "\U000F1901");
@@ -519,7 +546,6 @@ display:
       it.printf(10, 116, id(icon_font_17), "%s", "\U000F1903");
       it.printf(30, 116, id(roboto_15_bold), "%.0fw", id(inverter_power).state);
 
-
       // #Grid total power state
       it.printf(10, 138, id(icon_font_17), "%s", "\U000F0D3E");
 
@@ -531,8 +557,7 @@ display:
         it.printf(30, 138, id(roboto_15_bold), "%.0fw", id(grid_power).state);
       }
 
-
-      it.line(0, 160, 160, 160, my_white); // separator
+      it.line(0, 160, 135, 160, my_white); // separator
 
       // #- Loadshedding section -#
 
@@ -557,25 +582,18 @@ display:
 
       // #- Right Column -#
 
-        
+      // #Time
+      it.strftime(227, 50, id(fairplay_60_bold), my_white, TextAlign::TOP_CENTER, "%H:%M", id(internal_time).now());
 
       it.line(0, 210, 320, 210, my_white); // separator
       // ## Footer ##
       // #Room Temperature
       it.printf(10, 217, id(icon_font_17), "%s", "\U000F050F");
-      it.printf(35, 217, id(roboto_15_bold), "%.1f°C", id(temperature).state);
+      it.printf(30, 217, id(roboto_15_bold), "%.1f°C", id(temperature).state);
 
       // #Room Humidity
-      it.printf(85, 217, id(icon_font_17), "%s", "\U000F058E");
-      it.printf(105, 217, id(roboto_15_bold), "%.1f%%", id(relative_humidity).state);
-
-      // #Room CO2
-      it.printf(155, 217, id(icon_font_17), "%s", "\U000F07E4");
-      it.printf(175, 217, id(roboto_15_bold), "%.0fppm", id(eco2).state);
-
-      // #Room Tvoc
-      it.printf(240, 217, id(icon_font_17), "%s", "\U000F0438");
-      it.printf(260, 217, id(roboto_15_bold), "%.0fppb", id(tvoc).state);
+      it.printf(80, 217, id(icon_font_17), "%s", "\U000F058E");
+      it.printf(100, 217, id(roboto_15_bold), "%.1f%%", id(relative_humidity).state);
 
 ################################################################################
 # Output
