@@ -44,6 +44,10 @@ But please follow him, he may be a strange character but his content is very edu
 
 ## Where am I?
 
+***The state of the prototype***
+
+![Version 0.1](Images/weather_station_prototype_1.jpeg)
+
 ***The feed from the ESP32*** 
 
 ![Version 0.1](Images/screenshot.png)
@@ -55,18 +59,6 @@ The following sensors have been added and tested:
 - BH1750 Luminance Sensor, *I may remove this this one as the LTR390 gives me the same sensor*
 - CCS811 Air Quality Control Sensor - Total Volatile Organic Compound & equivalent CO2
 - LTR390 UV and Ambient Light Sensor - UV Index & Luminance
-
-To do:
-
-- Wind Direction
-- Anemometer - Wind Speed
-- Rain Gauge - Rain Amount
-- FY-37 Rain Detector - Rain Detection
-- AS3935 Franklin Lightning Detector
-- PMSX003 Particulate Matter Sensor
-- Anything I may have forgotten
-
-I will update as I add sensors
 
 ## What will you find here?
 
@@ -97,4 +89,18 @@ I have various improvements in mind including a partial redesign of the top lid 
 Change the battery and solar setup to something more substantial with battery and solar energy generation monitoring.
 
 But I'll post it all here.
+
+### Coming next 
+
+- Wind Direction
+- Anemometer - Wind Speed
+- Rain Gauge - Rain Amount
+- FY-37 Rain Detector - Rain Detection
+- AS3935 Franklin Lightning Detector
+- PMSX003 Particulate Matter Sensor
+- Anything I may have forgotten
+
+## Change log
+
+Coming soon
 

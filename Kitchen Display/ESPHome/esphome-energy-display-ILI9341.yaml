@@ -73,19 +73,21 @@ wifi:
     ssid: ${device_friendly_name}
     password: !secret web_server_password
 
-################################################################################
-# Web Server
-################################################################################
-web_server:
-  port: 80
-  version: 2
-  include_internal: true
-  auth:
-    username: !secret web_server_user
-    password: !secret web_server_password
-  local: true
-
 captive_portal:
+
+################################################################################
+# Bluetooth
+################################################################################
+bluetooth_proxy:
+  active: true
+
+# Bluetooth Low Energy Tracker Hub
+esp32_ble_tracker:
+  id: ${device_name}_ble_tracker
+  scan_parameters:
+    interval: 1100ms
+    window: 1100ms
+    active: true
 
 ################################################################################
 # Status led
@@ -385,6 +387,27 @@ sensor:
       name: Still Energy
     detection_distance:
       name: Detection Distance
+
+  #-------------------------------------------------------------------------------
+  # Kitchen Mopeka Pro Check BLE Sensor
+  # To get the mac_address please follow the instruction in the ESPHome Documentation
+  # https://esphome.io/components/sensor/mopeka_pro_check.html?highlight=mopeka
+  #-------------------------------------------------------------------------------
+  - platform: mopeka_pro_check
+    mac_address: 00:00:00:00:00:00
+    tank_type: EUROPE_11KG
+    temperature:
+      name: "LPG Sensor Temp"
+      id: ${device_name}_lpg_tank_sensor_temp
+    level:
+      name: "LPG Level"
+      id: ${device_name}_lpg_tank_level
+    distance:
+      name: "LPG Distance"
+      id: ${device_name}_lpg_tank_distance
+    battery_level:
+      name: "LPG Sensor battery level"
+      id: ${device_name}_lpg_tank_sensor_battery
 
 ################################################################################
 # Switch

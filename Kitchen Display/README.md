@@ -15,21 +15,6 @@ My wife and I needed a way to monitor our solar setup and our load shedding sche
 The idea is to use power hungry appliances when we are generating a maximum with the solar panels but not when we are load shedding.
 Since this display is to be mounted in the kitchen, I threw everything and the kitchen sink at it.
 
-### Updates
-
-#### 4 Aug 2023
-- Added MmWave Presence Sensor 
-- Added Presence icon on the left of the WiFi icon. 
-- Moved Time to the right area.
-- Remove CO2 and TVOC from bottom bar and removed the sensor.
-- Cleaned up YAML file and added some comments.
-
-### Coming next 
-
-- Add CO2 MQ-2 Gas/Smoke sensor to the bottom section.
-- Add LPG MQ-6 sensor reading to the bottom section.
-- Add Sonar Tank BLE Sensor (Mopeka Pro) reading to the right bottom section.
-
 ## Assumptions
 
 - You are willing to get your hands dirty, this means a some code and some electronics assembly, but since you are using Home Assistant I guess you knew that already.
@@ -52,6 +37,10 @@ Optionally:
 - GY-302/BH1750 Light Sensor, is there enough light to start cooking? No? Switch them on! This would require a smart switch (HA Implementation coming soon).
 - LD2410C MMwave Sensor for presence detection.
 - MQ2 Gas/Smoke Sensor, in case something starts burning.
+
+Additional optional sensor devices:
+- An ESP with an MQ-6 sensor to house with the bottle for LPG leaks
+- A Gas Eye Pro / Mopeka Pro Check for the gas bottle capacity
 
 ## Assembly Diagram
 
@@ -86,5 +75,26 @@ I have a gas hob and we never know when it is running out or if it is leaking. I
 
 I will share the circuit board and the 3D printable housing here when it is designed. 
 
+### Coming next 
+
+- Add CO2 MQ-2 Gas/Smoke sensor to the bottom section.
+- Add LPG MQ-6 sensor reading to the bottom section.
+- Add Sonar Tank BLE Sensor (Mopeka Pro) reading to the right bottom section.
+
+## Change log
+
+#### 4 Aug 2023
+- Added MmWave Presence Sensor 
+- Added Presence icon on the left of the WiFi icon. 
+- Moved Time to the right area.
+- Remove CO2 and TVOC from bottom bar and removed the sensor section.
+- Cleaned up YAML file and added some comments.
+
+#### 5 Aug 2023
+- Removed WebServer.
+- Added Bluetooth Proxy section.
+- Added BLE Tracker section.
+- Added Mopeka Pro Check in the Sensor section.
+  - To add this as a sensor please read this [page](https://esphome.io/components/sensor/mopeka_pro_check.html?highlight=mopeka) in the ESPHome documentation.
 
 
