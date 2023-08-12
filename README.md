@@ -10,5 +10,6 @@ I've tried to document it sufficiently that it is readable and easy to understan
 ## Content
 This is a collection of ESPHome YAML scripts I use, each project has its own folder, please read the readme file in those folders for more information of that project.
 
-- LD2410C MMWave Sensor Module Usage
+- LD2410C MMWave Sensor Module Usage & Kitchen Display [Original commit]
 - Weather Station [Added 04 Aug 2023]
+- Mopeka Pro Check [Added 12 Aug 2023]
