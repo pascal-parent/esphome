@@ -12,4 +12,6 @@ This is a collection of ESPHome YAML scripts I use, each project has its own fol
 
 - LD2410C MMWave Sensor Module Usage & Kitchen Display [Original commit]
 - Weather Station [Added 04 Aug 2023]
+- Kitchen Display [Added 05 Aug 2023]
 - Mopeka Pro Check [Added 12 Aug 2023]
+- Garage Door Controller [Added 18 Aug 2023]
