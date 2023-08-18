@@ -10,7 +10,7 @@ I've tried to document it sufficiently that it is readable and easy to understan
 ## History
 
 Amongst the many things I wanted to smartify was my garage door, why? If you knew the number of times my wife asked me if we had closed the garage door halfway to our destination, you'd understand.
-The hardware is based on 
+The hardware is based on [Dr Zzs](https://youtu.be/QMepwpyjMCY) but he uses Tasmota, I just wrote the ESPhome version for it.
 
 ## Assumptions
 
@@ -100,5 +100,5 @@ Now you are ready to integrate it into your dashboard, here is mine.
 
 ## What is next?
 
-Some automation to tell we have left the door open when we leave and if it's open too long.
+Some automation and notifications to tell we have left the door open when we leave and if it's open too long.
 I'll add them to the Home Assistant folder in the future.
