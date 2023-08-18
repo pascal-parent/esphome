@@ -39,7 +39,7 @@ The hardware is based on [Dr Zzs](https://youtu.be/QMepwpyjMCY) but he uses Tasm
 
 ## The Code
 
-You will find the ESPHome code [here](ESPHome\esphome-garage-door-controller.yaml)
+You will find the ESPHome code [here](ESPHome/esphome-garage-door-controller.yaml)
 
 To install it, you will need a FTDI USB to TTL module, connect it as follows:
 - FTDI VCC to Sonoff SV 3V3 **but first make sure your FTDI is set to 3.3v, you may damage the Sonoff SV if it is not!**
