@@ -50,6 +50,23 @@ You will find the ESPHome code [here](lpg_gas_leak_sensor.yaml)
 
 If it appear in ESPHome but not in Home Assistant, add it manually by using the IP you assigned to it.
 
+The home assistant dashboard code is as follows
+
+    - type: gauge
+      name: LPG Concentration
+      needle: true
+      unit: "%"
+      entity: sensor.esphome_kitchen_gas_detector_lpg_gas_sensor
+      segments:
+        - from: 0
+          color: "#184B29"
+        - from: 30
+          color: "#996719"
+        - from: 40
+          color: "#800000"   
+          
+![Fritzing Diagram](Images/HA_Dashboard.png)
+
 ## What is next?
 
 I need to design a case and refine the code so the calculations are more accurate.
