@@ -83,6 +83,8 @@ I added a few "virtual" sensors, most notably:
 Some of these will be affected by the calibration.
 Though the YAML script is in still in development, all the sensors added in it work except the AS3935.
 
+I started on the dashboard as well, see it [here](home%20assistant/README.md)
+
 ## What will you need?
 
 The bill of material is on the [Instructables](https://www.instructables.com/Solar-Powered-WiFi-Weather-Station-V30/) page, I've had to swop out a sensor as I could not find an SI1145 UV Index sensor in South Africa. 

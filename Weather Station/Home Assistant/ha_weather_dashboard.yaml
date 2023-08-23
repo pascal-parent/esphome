@@ -1,0 +1,452 @@
+title: "Weather"
+path: "weather"
+
+cards:
+  # Forecast
+  - type: vertical-stack
+    cards:
+      - type: horizontal-stack
+        cards:
+          - type: "custom:button-card"
+            template: chip_back
+            variables:
+              ulm_chip_back_path: home
+
+          - type: "custom:button-card"
+            template: custom_card_title
+            name: Weather
+
+      # Forecast
+      - type: custom:weather-card
+        entity: weather.tomorrow_io_home_daily
+        number_of_forecasts: "5"
+        current: true
+        details: true
+        forecast: false
+        hourly_forecast: false
+
+      - type: custom:hourly-weather
+        entity: weather.tomorrow_io_home_hourly
+        name: null
+        icons: true
+        show_precipitation_probability: true
+        show_wind: barb-and-speed
+        num_segments: "18"
+
+      - type: custom:clock-weather-card
+        entity: weather.tomorrow_io_home_daily
+        sun_entity: sun.sun
+        weather_icon_type: line
+        animated_icon: true
+        forecast_days: 6
+        time_format: 24
+        date_pattern: P
+        hide_today_section: true
+        hide_forecast_section: false
+
+      # Astronomical
+      - type: entities
+        title: Astronomical
+        entities:
+          - entity: sensor.season
+
+      #Sun card
+      - type: custom:horizon-card
+        moon: true
+        refresh_period: 60
+        fields:
+          sunrise: true
+          sunset: true
+          dawn: true
+          noon: true
+          dusk: true
+          azimuth: true
+          sun_azimuth: false
+          moon_azimuth: false
+          elevation: true
+          sun_elevation: false
+          moon_elevation: false
+          moonrise: true
+          moonset: true
+          moon_phase: true
+        southern_flip: false
+        language: en
+        time_format: 24
+
+  # Weather Station Realtime
+  - type: vertical-stack
+    cards:
+      - type: "custom:button-card"
+        template: card_title
+        label: "Home Weather Station"
+
+      - type: horizontal-stack
+        cards:
+          # Temperature
+          - type: "custom:flex-horseshoe-card"
+            entities:
+              - entity: sensor.esphome_weather_station_dallas_temperature
+                decimals: 1
+                name: "Temperature"
+                unit: "°C"
+              - entity: sensor.weather_station_daily_minimum_temperature
+                name: "Min"
+                decimals: 1
+                unit: "°C"
+              - entity: sensor.weather_station_daily_maximum_temperature
+                name: Max
+                decimals: 1
+                unit: "°C"
+            show:
+              horseshoe_style: "colorstopgradient"
+            layout:
+              hlines:
+                - id: 0
+                  xpos: 50
+                  ypos: 40
+                  length: 40
+                  styles:
+                    - stroke: var(--primary-text-color);
+                    - stroke-width: 5;
+                    - opacity: 0.9;
+                    - stroke-linecap: round;
+                  color: "#FFF6E3"
+              vlines:
+                - id: 0
+                  xpos: 50
+                  ypos: 56
+                  length: 20
+                  styles:
+                    - stroke: var(--primary-text-color);
+                    - opacity: 0.5;
+                    - stroke-width: 2;
+                    - stroke-linecap: round;
+              states:
+                # Current
+                - id: 0
+                  entity_index: 0
+                  xpos: 50
+                  ypos: 32
+                  styles:
+                    - font-size: 36px;
+                # Min
+                - id: 1
+                  entity_index: 1
+                  xpos: 46
+                  ypos: 56
+                  styles:
+                    - text-anchor: end;
+                    - font-size: 18px;
+                # Max
+                - id: 2
+                  entity_index: 2
+                  xpos: 54
+                  ypos: 56
+                  styles:
+                    - text-anchor: start;
+                    - font-size: 18px;
+              names:
+                - id: 0
+                  entity_index: 0
+                  xpos: 50
+                  ypos: 80
+                  styles:
+                    - font-size: 13px;
+                    - opacity: 0.7;
+                - id: 1
+                  entity_index: 1
+                  xpos: 46
+                  ypos: 64
+                  styles:
+                    - font-size: 10px;
+                    - text-anchor: end;
+                    - opacity: 0.7;
+                - id: 2
+                  entity_index: 2
+                  xpos: 54
+                  ypos: 64
+                  styles:
+                    - font-size: 10px;
+                    - text-anchor: start;
+                    - opacity: 0.7;
+            horseshoe_scale:
+              min: -10
+              max: 40
+            color_stops:
+              0: "#B1DBEF"
+              20: "#53AFDC"
+              36: "#5FD564"
+              46: "#FFA81D"
+              56: "#FF7D7D"
+              64: "#9E0000"
+
+          # Humidity
+          - type: "custom:flex-horseshoe-card"
+            entities:
+              - entity: sensor.esphome_weather_station_humidity
+                decimals: 0
+                name: "Humidity"
+                unit: "%"
+              - entity: sensor.weather_station_daily_minimum_humidity
+                name: "Min"
+                decimals: 0
+                unit: "%"
+              - entity: sensor.weather_station_daily_maximum_humidity
+                name: Max
+                decimals: 0
+                unit: "%"
+            show:
+              horseshoe_style: "lineargradient"
+            layout:
+              hlines:
+                - id: 0
+                  xpos: 50
+                  ypos: 40
+                  length: 40
+                  styles:
+                    - stroke: var(--primary-text-color);
+                    - stroke-width: 5;
+                    - opacity: 0.9;
+                    - stroke-linecap: round;
+                  color: "#FFF6E3"
+              vlines:
+                - id: 0
+                  xpos: 50
+                  ypos: 56
+                  length: 20
+                  styles:
+                    - stroke: var(--primary-text-color);
+                    - opacity: 0.5;
+                    - stroke-width: 2;
+                    - stroke-linecap: round;
+              states:
+                # Current
+                - id: 0
+                  entity_index: 0
+                  xpos: 50
+                  ypos: 32
+                  styles:
+                    - font-size: 36px;
+                # Min
+                - id: 1
+                  entity_index: 1
+                  xpos: 46
+                  ypos: 56
+                  styles:
+                    - text-anchor: end;
+                    - font-size: 18px;
+                # Max
+                - id: 2
+                  entity_index: 2
+                  xpos: 54
+                  ypos: 56
+                  styles:
+                    - text-anchor: start;
+                    - font-size: 18px;
+              names:
+                - id: 0
+                  entity_index: 0
+                  xpos: 50
+                  ypos: 80
+                  styles:
+                    - font-size: 13px;
+                    - opacity: 0.7;
+                - id: 1
+                  entity_index: 1
+                  xpos: 46
+                  ypos: 64
+                  styles:
+                    - font-size: 10px;
+                    - text-anchor: end;
+                    - opacity: 0.7;
+                - id: 2
+                  entity_index: 2
+                  xpos: 54
+                  ypos: 64
+                  styles:
+                    - font-size: 10px;
+                    - text-anchor: start;
+                    - opacity: 0.7;
+            horseshoe_scale:
+              min: 0
+              max: 100
+            color_stops:
+              0: "#84C5E6"
+              50: "#005696"
+
+      - type: horizontal-stack
+        cards:
+          # Illuminance
+          - type: "custom:button-card"
+            template: card_graph
+            entity: sensor.weather_station_average_illuminance
+            variables:
+              ulm_card_graph_icon: mdi:white-balance-sunny
+              ulm_card_graph_color: "#FFD65C"
+              ulm_card_graph_name: "Illuminance"
+              ulm_card_graph_entity: sensor.weather_station_average_illuminance
+              ulm_card_graph_type: fill
+              ulm_card_graph_hours: 24
+          # UV Index
+          - type: "custom:button-card"
+            template: card_graph
+            entity: sensor.esphome_weather_station_uv_index
+            variables:
+              ulm_card_graph_icon: mdi:shield-sun-outline
+              ulm_card_graph_color: "#996719"
+              ulm_card_graph_name: "UV Index"
+              ulm_card_graph_entity: sensor.esphome_weather_station_uv_index
+              ulm_card_graph_type: fill
+              ulm_card_graph_hours: 24
+
+      - type: horizontal-stack
+        cards:
+          #Wind Speed
+          - type: "custom:button-card"
+            template: card_graph
+            entity: sensor.esphome_weather_station_wind_speed
+            variables:
+              ulm_card_graph_icon: mdi:weather-windy
+              ulm_card_graph_color: "#6F4E37"
+              ulm_card_graph_name: "Current Wind Speed"
+              ulm_card_graph_entity: sensor.esphome_weather_station_wind_speed
+              ulm_card_graph_type: fill
+              ulm_card_graph_hours: 24
+
+          #Wind Speed
+          - type: "custom:button-card"
+            template: card_graph
+            entity: sensor.esphome_weather_station_wind_speed_average
+            variables:
+              ulm_card_graph_icon: mdi:weather-windy
+              ulm_card_graph_color: "#6F4E37"
+              ulm_card_graph_name: "Average Wind Speed"
+              ulm_card_graph_entity: sensor.esphome_weather_station_wind_speed_average
+              ulm_card_graph_type: fill
+              ulm_card_graph_hours: 24
+
+      - type: horizontal-stack
+        cards:
+          #Wind Speed
+          - type: "custom:button-card"
+            template: card_graph
+            entity: sensor.esphome_weather_station_rainfall_per_min
+            variables:
+              ulm_card_graph_icon: mdi:weather-rainy
+              ulm_card_graph_color: "#6F4E37"
+              ulm_card_graph_name: "Rainfall per minute"
+              ulm_card_graph_entity: sensor.esphome_weather_station_rainfall_per_min
+              ulm_card_graph_type: fill
+              ulm_card_graph_hours: 24
+
+          #Wind Speed
+          - type: "custom:button-card"
+            template: card_graph
+            entity: sensor.esphome_weather_station_total_daily_rain
+            variables:
+              ulm_card_graph_icon: mdi:weather-rainy
+              ulm_card_graph_color: "#6F4E37"
+              ulm_card_graph_name: "Total daily rain"
+              ulm_card_graph_entity: sensor.esphome_weather_station_total_daily_rain
+              ulm_card_graph_type: fill
+              ulm_card_graph_hours: 24
+
+      - type: horizontal-stack
+        cards:
+          - type: "custom:button-card"
+            template: chip_mdi_icon_state
+            variables:
+              ulm_chip_mdi_icon_state_entity: sensor.esphome_weather_station_beaufort_wind_scale
+              ulm_chip_mdi_icon_state_icon: mdi:tailwind
+
+          - type: "custom:button-card"
+            color_type: blank-card
+
+          - type: "custom:button-card"
+            template: chip_mdi_icon_state
+            variables:
+              ulm_chip_mdi_icon_state_entity: sensor.esphome_weather_station_dew_point
+              ulm_chip_mdi_icon_state_icon: mdi:thermometer-alert
+
+      - type: horizontal-stack
+        cards:
+          # eCO2
+          - type: "custom:button-card"
+            template: card_graph
+            entity: sensor.esphome_weather_station_eco2_value
+            variables:
+              ulm_card_graph_icon: mdi:molecule-co2
+              ulm_card_graph_color: "#6F4E37"
+              ulm_card_graph_name: "eCO2"
+              ulm_card_graph_entity: sensor.esphome_weather_station_eco2_value
+              ulm_card_graph_type: fill
+              ulm_card_graph_hours: 24
+
+          # TVOC
+          - type: "custom:button-card"
+            template: card_graph
+            entity: sensor.esphome_weather_station_total_volatile_organic_compound
+            variables:
+              ulm_card_graph_icon: mdi:heat-wave
+              ulm_card_graph_color: "#d6fffa"
+              ulm_card_graph_name: "Total Volatile Organic Compound"
+              ulm_card_graph_entity: sensor.esphome_weather_station_total_volatile_organic_compound
+              ulm_card_graph_type: fill
+              ulm_card_graph_hours: 24
+
+      - type: horizontal-stack
+        cards:
+          - type: custom:compass-card
+            header:
+              title:
+                value: Wind Direction
+            indicator_sensors:
+              - sensor: sensor.esphome_weather_station_wind_cardinal_direction
+                indicator:
+                type: arrow_inward
+            value_sensors:
+              - sensor: sensor.esphome_weather_station_wind_heading
+            compass:
+              north:
+                show: true
+              east:
+                show: true
+              west:
+                show: true
+              south:
+                show: true
+
+          - type: "custom:button-card"
+            color_type: blank-card
+
+  # Interior
+  - type: vertical-stack
+    cards:
+      - type: "custom:button-card"
+        template: card_title
+        label: "Interior Environment"
+
+      - type: horizontal-stack
+        cards:
+          # Temperature
+          - type: "custom:button-card"
+            template: card_graph
+            entity: sensor.house_average_temperature
+            variables:
+              ulm_card_graph_icon: mdi:home-thermometer-outline
+              ulm_card_graph_color: "#E84B4F"
+              ulm_card_graph_name: "Average Temperature"
+              ulm_card_graph_entity: sensor.house_average_temperature
+              ulm_card_graph_type: fill
+              ulm_card_graph_hours: 24
+          # Humidity
+          - type: "custom:button-card"
+            template: card_graph
+            entity: sensor.house_average_humidity
+            variables:
+              ulm_card_graph_icon: mdi:water-percent
+              ulm_card_graph_color: "#3F33BD"
+              ulm_card_graph_name: "Average Humidity"
+              ulm_card_graph_entity: sensor.house_average_humidity
+              ulm_card_graph_type: fill
+              ulm_card_graph_hours: 24
