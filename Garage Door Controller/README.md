@@ -102,3 +102,12 @@ Now you are ready to integrate it into your dashboard, here is mine.
 
 Some automation and notifications to tell we have left the door open when we leave and if it's open too long.
 I'll add them to the Home Assistant folder in the future.
+
+## Sponsoring
+
+ If you like my work and want to support the growth of the project, you can! 
+
+[![Buy Me A Coffee][2]][1]
+
+[1]: https://www.buymeacoffee.com/parentpj
+[2]: https://cdn.buymeacoffee.com/buttons/default-black.png

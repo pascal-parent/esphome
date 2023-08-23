@@ -7,7 +7,7 @@
 This example code is supplied **"as is"** with no warranties of any kind, it works on my setup but it des not mean it will work on yours without modifications or at all. This example is meant to point you in the right direction. I take no responsibilities on it's usage. 
 I've tried to document it sufficiently that it is readable and easy to understand.
 
-## History
+## About
 
 When we installed our gas hob we were forced to put the bottle inside the kitchen, neither I or my wife liked the idea of having an LPG bottle in the kitchen without a gas sensor.
 So I whipped one up, it's not completed but it does the trick.
@@ -70,3 +70,12 @@ The home assistant dashboard code is as follows
 ## What is next?
 
 I need to design a case and refine the code so the calculations are more accurate.
+
+## Sponsoring
+
+ If you like my work and want to support the growth of the project, you can! 
+
+[![Buy Me A Coffee][2]][1]
+
+[1]: https://www.buymeacoffee.com/parentpj
+[2]: https://cdn.buymeacoffee.com/buttons/default-black.png

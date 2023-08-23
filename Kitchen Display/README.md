@@ -97,4 +97,11 @@ I will share the circuit board and the 3D printable housing here when it is desi
 - Added Mopeka Pro Check in the Sensor section.
   - To add this as a sensor please read this [page](https://esphome.io/components/sensor/mopeka_pro_check.html?highlight=mopeka) in the ESPHome documentation.
 
+## Sponsoring
 
+If you like my work and want to support the growth of the project, you can! 
+
+[![Buy Me A Coffee][2]][1]
+
+[1]: https://www.buymeacoffee.com/parentpj
+[2]: https://cdn.buymeacoffee.com/buttons/default-black.png

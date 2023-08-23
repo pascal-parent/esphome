@@ -30,3 +30,12 @@ Most of it is best practices and the rest is straight from the ESPHome site http
 You will see my code UART does not use the standard GPIO1 and GPIO3, I never got it to work on those pins.
 Instead, I use GPIO16 (RX) and GPIO17 (TX), that solved all my issues.
 Interestingly, the ESP32 has 3 UART, more on this here: https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/peripherals/uart.html
+
+## Sponsoring
+
+If you like my work and want to support the growth of the project, you can! 
+
+[![Buy Me A Coffee][2]][1]
+
+[1]: https://www.buymeacoffee.com/parentpj
+[2]: https://cdn.buymeacoffee.com/buttons/default-black.png
