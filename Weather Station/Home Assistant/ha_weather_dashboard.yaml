@@ -16,62 +16,72 @@ cards:
             template: custom_card_title
             name: Weather
 
-      # Forecast
-      - type: custom:weather-card
-        entity: weather.tomorrow_io_home_daily
-        number_of_forecasts: "5"
-        current: true
-        details: true
-        forecast: false
-        hourly_forecast: false
+      - type: horizontal-stack
+        cards:
+          - type: vertical-stack
+            in_card: true
+            cards:
+              # Forecast
+              - type: custom:weather-card
+                entity: weather.tomorrow_io_home_daily
+                number_of_forecasts: "5"
+                current: true
+                details: true
+                forecast: false
+                hourly_forecast: false
 
-      - type: custom:hourly-weather
-        entity: weather.tomorrow_io_home_hourly
-        name: null
-        icons: true
-        show_precipitation_probability: true
-        show_wind: barb-and-speed
-        num_segments: "18"
+              # 12 hour Forcast
+              - type: custom:hourly-weather
+                entity: weather.tomorrow_io_home_hourly
+                name: null
+                icons: true
+                show_precipitation_probability: true
 
-      - type: custom:clock-weather-card
-        entity: weather.tomorrow_io_home_daily
-        sun_entity: sun.sun
-        weather_icon_type: line
-        animated_icon: true
-        forecast_days: 6
-        time_format: 24
-        date_pattern: P
-        hide_today_section: true
-        hide_forecast_section: false
+              # 6 day Forcast
+              - type: custom:clock-weather-card
+                entity: weather.tomorrow_io_home_daily
+                sun_entity: sun.sun
+                weather_icon_type: line
+                animated_icon: true
+                forecast_days: 6
+                time_format: 24
+                date_pattern: P
+                hide_today_section: true
+                hide_forecast_section: false
 
-      # Astronomical
-      - type: entities
-        title: Astronomical
-        entities:
-          - entity: sensor.season
+      - type: horizontal-stack
+        cards:
+          - type: vertical-stack
+            in_card: true
+            cards:
+              # Astronomical
+              - type: entities
+                title: Astronomical
+                entities:
+                  - entity: sensor.season
 
-      #Sun card
-      - type: custom:horizon-card
-        moon: true
-        refresh_period: 60
-        fields:
-          sunrise: true
-          sunset: true
-          dawn: true
-          noon: true
-          dusk: true
-          azimuth: true
-          sun_azimuth: false
-          moon_azimuth: false
-          elevation: true
-          sun_elevation: false
-          moon_elevation: false
-          moonrise: true
-          moonset: true
-          moon_phase: true
-        southern_flip: false
-        language: en
-        time_format: 24
+              #Sun card
+              - type: custom:horizon-card
+                moon: true
+                refresh_period: 60
+                fields:
+                  sunrise: true
+                  sunset: true
+                  dawn: true
+                  noon: true
+                  dusk: true
+                  azimuth: true
+                  sun_azimuth: false
+                  moon_azimuth: false
+                  elevation: true
+                  sun_elevation: false
+                  moon_elevation: false
+                  moonrise: true
+                  moonset: true
+                  moon_phase: true
+                southern_flip: false
+                language: en
+                time_format: 24
 
   # Weather Station Realtime
   - type: vertical-stack
@@ -80,42 +90,355 @@ cards:
         template: card_title
         label: "Home Weather Station"
 
+      # Temperature and Humidity
       - type: horizontal-stack
         cards:
-          # Temperature
+          - type: vertical-stack
+            in_card: true
+            cards:
+              # Temperature
+              - type: "custom:flex-horseshoe-card"
+                entities:
+                  - entity: sensor.esphome_weather_station_dallas_temperature
+                    decimals: 1
+                    name: "Temperature"
+                    unit: "°C"
+                    icon: mdi:thermometer
+                  - entity: sensor.weather_station_daily_minimum_temperature
+                    name: "Min"
+                    decimals: 1
+                    unit: "°C"
+                  - entity: sensor.weather_station_daily_maximum_temperature
+                    name: Max
+                    decimals: 1
+                    unit: "°C"
+                show:
+                  horseshoe_style: "colorstop"
+                layout:
+                  icons:
+                    - id: 0
+                      entity_index: 0
+                      xpos: 6
+                      ypos: 8
+                      size: 1.3
+                  hlines:
+                    - id: 0
+                      xpos: 50
+                      ypos: 42
+                      length: 82
+                      styles:
+                        - stroke: var(--primary-text-color);
+                        - stroke-width: 2;
+                        - opacity: 0.5;
+                        - stroke-linecap: round;
+                      color: "#FFF6E3"
+                    - id: 1
+                      xpos: 50
+                      ypos: 70
+                      length: 73
+                      styles:
+                        - stroke: var(--primary-text-color);
+                        - stroke-width: 2;
+                        - opacity: 0.5;
+                        - stroke-linecap: round;
+                      color: "#FFF6E3"
+                  vlines:
+                    - id: 0
+                      xpos: 50
+                      ypos: 56
+                      length: 26
+                      styles:
+                        - stroke: var(--primary-text-color);
+                        - opacity: 0.5;
+                        - stroke-width: 2;
+                        - stroke-linecap: round;
+                  states:
+                    # Current
+                    - id: 0
+                      entity_index: 0
+                      xpos: 50
+                      ypos: 36
+                      styles:
+                        - font-size: 36px;
+                    # Min
+                    - id: 1
+                      entity_index: 1
+                      xpos: 46
+                      ypos: 56
+                      styles:
+                        - text-anchor: end;
+                        - font-size: 18px;
+                    # Max
+                    - id: 2
+                      entity_index: 2
+                      xpos: 54
+                      ypos: 56
+                      styles:
+                        - text-anchor: start;
+                        - font-size: 18px;
+                  names:
+                    - id: 0
+                      entity_index: 0
+                      xpos: 50
+                      ypos: 95
+                      styles:
+                        - font-size: 13px;
+                        #- text-anchor: start;
+                        - opacity: 0.7;
+                    - id: 1
+                      entity_index: 1
+                      xpos: 46
+                      ypos: 64
+                      styles:
+                        - font-size: 10px;
+                        - text-anchor: end;
+                        - opacity: 0.7;
+                    - id: 2
+                      entity_index: 2
+                      xpos: 54
+                      ypos: 64
+                      styles:
+                        - font-size: 10px;
+                        - text-anchor: start;
+                        - opacity: 0.7;
+                horseshoe_scale:
+                  min: -10
+                  max: 40
+                color_stops:
+                  0: "#B1DBEF"
+                  10: "#53AFDC"
+                  18: "#5FD564"
+                  24: "#FFA81D"
+                  30: "#FF7D7D"
+                  40: "#9E0000"
+
+              - type: custom:mini-graph-card
+                entities:
+                  - sensor.esphome_weather_station_dallas_temperature
+                hours_to_show: 24
+                height: 150
+                show:
+                  icon: false
+                  name: false
+                  state: false
+                line_width: 8
+                color_thresholds:
+                  - value: 0
+                    color: "#B1DBEF"
+                  - value: 10
+                    color: "#53AFDC"
+                  - value: 18
+                    color: "#5FD564"
+                  - value: 24
+                    color: "#FFA81D"
+                  - value: 30
+                    color: "#FF7D7D"
+                  - value: 40
+                    color: "#9E0000"
+
+          - type: vertical-stack
+            in_card: true
+            cards:
+              # Humidity
+              - type: "custom:flex-horseshoe-card"
+                entities:
+                  - entity: sensor.esphome_weather_station_humidity
+                    decimals: 0
+                    name: "Humidity"
+                    unit: "%"
+                    icon: mdi:water
+                  - entity: sensor.weather_station_daily_minimum_humidity
+                    name: "Min"
+                    decimals: 0
+                    unit: "%"
+                  - entity: sensor.weather_station_daily_maximum_humidity
+                    name: Max
+                    decimals: 0
+                    unit: "%"
+                  - entity: sensor.esphome_weather_station_dew_point
+                    name: Dew Point
+                    decimals: 1
+                    unit: "°C"
+                show:
+                  horseshoe_style: "lineargradient"
+                layout:
+                  icons:
+                    - id: 0
+                      entity_index: 0
+                      xpos: 6
+                      ypos: 8
+                      size: 1.3
+                  hlines:
+                    - id: 0
+                      xpos: 50
+                      ypos: 42
+                      length: 82
+                      styles:
+                        - stroke: var(--primary-text-color);
+                        - stroke-width: 2;
+                        - opacity: 0.5;
+                        - stroke-linecap: round;
+                      color: "#FFF6E3"
+                    - id: 1
+                      xpos: 50
+                      ypos: 70
+                      length: 73
+                      styles:
+                        - stroke: var(--primary-text-color);
+                        - stroke-width: 2;
+                        - opacity: 0.5;
+                        - stroke-linecap: round;
+                      color: "#FFF6E3"
+                  vlines:
+                    - id: 0
+                      xpos: 50
+                      ypos: 56
+                      length: 26
+                      styles:
+                        - stroke: var(--primary-text-color);
+                        - opacity: 0.5;
+                        - stroke-width: 2;
+                        - stroke-linecap: round;
+                  states:
+                    # Current
+                    - id: 0
+                      entity_index: 0
+                      xpos: 50
+                      ypos: 36
+                      styles:
+                        - font-size: 36px;
+                    # Min
+                    - id: 1
+                      entity_index: 1
+                      xpos: 46
+                      ypos: 56
+                      styles:
+                        - text-anchor: end;
+                        - font-size: 18px;
+                    # Max
+                    - id: 2
+                      entity_index: 2
+                      xpos: 54
+                      ypos: 56
+                      styles:
+                        - text-anchor: start;
+                        - font-size: 18px;
+                    # Dew Point
+                    - id: 3
+                      entity_index: 3
+                      xpos: 65
+                      ypos: 82
+                      styles:
+                        - font-size: 13px;
+                        - text-anchor: start;
+                  names:
+                    - id: 0
+                      entity_index: 0
+                      xpos: 50
+                      ypos: 95
+                      styles:
+                        - font-size: 13px;
+                        - opacity: 0.7;
+                    - id: 1
+                      entity_index: 1
+                      xpos: 46
+                      ypos: 64
+                      styles:
+                        - font-size: 10px;
+                        - text-anchor: end;
+                        - opacity: 0.7;
+                    - id: 2
+                      entity_index: 2
+                      xpos: 54
+                      ypos: 64
+                      styles:
+                        - font-size: 10px;
+                        - text-anchor: start;
+                        - opacity: 0.7;
+                    - id: 3
+                      entity_index: 3
+                      xpos: 63
+                      ypos: 82
+                      styles:
+                        - font-size: 13px;
+                        - text-anchor: end;
+                horseshoe_scale:
+                  min: 0
+                  max: 100
+                color_stops:
+                  0: "#84C5E6"
+                  50: "#005696"
+
+              - type: custom:mini-graph-card
+                entities:
+                  - sensor.esphome_weather_station_humidity
+                hours_to_show: 24
+                height: 150
+                show:
+                  icon: false
+                  name: false
+                  state: false
+                line_width: 8
+                color_thresholds:
+                  - value: 0
+                    color: "#84C5E6"
+                  - value: 50
+                    color: "#005696"
+
+      # Wind & UV
+      - type: horizontal-stack
+        cards:
+          # Wind
           - type: "custom:flex-horseshoe-card"
             entities:
-              - entity: sensor.esphome_weather_station_dallas_temperature
-                decimals: 1
-                name: "Temperature"
-                unit: "°C"
-              - entity: sensor.weather_station_daily_minimum_temperature
-                name: "Min"
-                decimals: 1
-                unit: "°C"
-              - entity: sensor.weather_station_daily_maximum_temperature
-                name: Max
-                decimals: 1
-                unit: "°C"
+              - entity: sensor.esphome_weather_station_wind_speed
+                decimals: 0
+                name: "Wind Speed"
+                unit: "km/h"
+                icon: mdi:tailwind
+              - entity: sensor.weather_station_daily_maximum_wind_speed
+                name: Gust
+                decimals: 0
+                unit: "km/h"
+              - entity: sensor.esphome_weather_station_beaufort_wind_scale
+                name: Beaufort Wind Scale
+              - entity: sensor.esphome_weather_station_wind_cardinal_direction
+                name: Direction
             show:
-              horseshoe_style: "colorstopgradient"
+              horseshoe_style: "colorstop"
             layout:
+              icons:
+                - id: 0
+                  entity_index: 0
+                  xpos: 6
+                  ypos: 8
+                  size: 1.3
               hlines:
                 - id: 0
                   xpos: 50
-                  ypos: 40
-                  length: 40
+                  ypos: 42
+                  length: 82
                   styles:
                     - stroke: var(--primary-text-color);
-                    - stroke-width: 5;
-                    - opacity: 0.9;
+                    - stroke-width: 2;
+                    - opacity: 0.5;
+                    - stroke-linecap: round;
+                  color: "#FFF6E3"
+                - id: 1
+                  xpos: 50
+                  ypos: 70
+                  length: 73
+                  styles:
+                    - stroke: var(--primary-text-color);
+                    - stroke-width: 2;
+                    - opacity: 0.5;
                     - stroke-linecap: round;
                   color: "#FFF6E3"
               vlines:
                 - id: 0
                   xpos: 50
                   ypos: 56
-                  length: 20
+                  length: 26
                   styles:
                     - stroke: var(--primary-text-color);
                     - opacity: 0.5;
@@ -126,10 +449,10 @@ cards:
                 - id: 0
                   entity_index: 0
                   xpos: 50
-                  ypos: 32
+                  ypos: 36
                   styles:
                     - font-size: 36px;
-                # Min
+                # Gust
                 - id: 1
                   entity_index: 1
                   xpos: 46
@@ -137,9 +460,15 @@ cards:
                   styles:
                     - text-anchor: end;
                     - font-size: 18px;
-                # Max
+                # Scale
                 - id: 2
                   entity_index: 2
+                  xpos: 50
+                  ypos: 80
+                  styles:
+                    - font-size: 16px;
+                - id: 3
+                  entity_index: 3
                   xpos: 54
                   ypos: 56
                   styles:
@@ -149,7 +478,7 @@ cards:
                 - id: 0
                   entity_index: 0
                   xpos: 50
-                  ypos: 80
+                  ypos: 95
                   styles:
                     - font-size: 13px;
                     - opacity: 0.7;
@@ -162,7 +491,7 @@ cards:
                     - text-anchor: end;
                     - opacity: 0.7;
                 - id: 2
-                  entity_index: 2
+                  entity_index: 3
                   xpos: 54
                   ypos: 64
                   styles:
@@ -170,50 +499,62 @@ cards:
                     - text-anchor: start;
                     - opacity: 0.7;
             horseshoe_scale:
-              min: -10
-              max: 40
+              min: 0
+              max: 120
             color_stops:
-              0: "#B1DBEF"
-              20: "#53AFDC"
-              36: "#5FD564"
-              46: "#FFA81D"
-              56: "#FF7D7D"
-              64: "#9E0000"
+              0: "#84C5E6"
+              100: "#005696"
 
-          # Humidity
+          # UV and Luminosity
           - type: "custom:flex-horseshoe-card"
             entities:
-              - entity: sensor.esphome_weather_station_humidity
+              - entity: sensor.esphome_weather_station_uv_index
                 decimals: 0
-                name: "Humidity"
-                unit: "%"
-              - entity: sensor.weather_station_daily_minimum_humidity
-                name: "Min"
+                name: "Ultraviolet"
+                icon: mdi:shield-sun-outline
+              - entity: sensor.esphome_weather_station_uv
+                name: UV
                 decimals: 0
-                unit: "%"
-              - entity: sensor.weather_station_daily_maximum_humidity
-                name: Max
+                unit: "UVI"
+              - entity: sensor.esphome_weather_station_ltr390_illiminance
+                name: Illuminance
                 decimals: 0
-                unit: "%"
+                unit: "lx"
             show:
-              horseshoe_style: "lineargradient"
+              horseshoe_style: "colorstop"
             layout:
+              icons:
+                - id: 0
+                  entity_index: 0
+                  xpos: 6
+                  ypos: 8
+                  size: 1.3
               hlines:
                 - id: 0
                   xpos: 50
-                  ypos: 40
-                  length: 40
+                  ypos: 42
+                  length: 82
                   styles:
                     - stroke: var(--primary-text-color);
-                    - stroke-width: 5;
-                    - opacity: 0.9;
+                    - stroke-width: 2;
+                    - opacity: 0.5;
+                    - stroke-linecap: round;
+                  color: "#FFF6E3"
+                - id: 1
+                  xpos: 50
+                  ypos: 70
+                  length: 73
+                  styles:
+                    - stroke: var(--primary-text-color);
+                    - stroke-width: 2;
+                    - opacity: 0.5;
                     - stroke-linecap: round;
                   color: "#FFF6E3"
               vlines:
                 - id: 0
                   xpos: 50
                   ypos: 56
-                  length: 20
+                  length: 26
                   styles:
                     - stroke: var(--primary-text-color);
                     - opacity: 0.5;
@@ -224,10 +565,10 @@ cards:
                 - id: 0
                   entity_index: 0
                   xpos: 50
-                  ypos: 32
+                  ypos: 36
                   styles:
                     - font-size: 36px;
-                # Min
+                # Gust
                 - id: 1
                   entity_index: 1
                   xpos: 46
@@ -235,7 +576,6 @@ cards:
                   styles:
                     - text-anchor: end;
                     - font-size: 18px;
-                # Max
                 - id: 2
                   entity_index: 2
                   xpos: 54
@@ -243,11 +583,18 @@ cards:
                   styles:
                     - text-anchor: start;
                     - font-size: 18px;
+                # Scale
+                #- id: 23
+                #  entity_index: 3
+                #  xpos: 50
+                #  ypos: 80
+                #  styles:
+                #    - font-size: 16px;
               names:
                 - id: 0
                   entity_index: 0
                   xpos: 50
-                  ypos: 80
+                  ypos: 95
                   styles:
                     - font-size: 13px;
                     - opacity: 0.7;
@@ -269,156 +616,299 @@ cards:
                     - opacity: 0.7;
             horseshoe_scale:
               min: 0
-              max: 100
+              max: 11
             color_stops:
-              0: "#84C5E6"
-              50: "#005696"
+              0: "#3EA72D"
+              3: "#FFF647"
+              6: "#FFAA33"
+              8: "#BF2B0D"
+              11: "#8A427A"
 
-      - type: horizontal-stack
-        cards:
-          # Illuminance
-          - type: "custom:button-card"
-            template: card_graph
-            entity: sensor.weather_station_average_illuminance
-            variables:
-              ulm_card_graph_icon: mdi:white-balance-sunny
-              ulm_card_graph_color: "#FFD65C"
-              ulm_card_graph_name: "Illuminance"
-              ulm_card_graph_entity: sensor.weather_station_average_illuminance
-              ulm_card_graph_type: fill
-              ulm_card_graph_hours: 24
-          # UV Index
-          - type: "custom:button-card"
-            template: card_graph
-            entity: sensor.esphome_weather_station_uv_index
-            variables:
-              ulm_card_graph_icon: mdi:shield-sun-outline
-              ulm_card_graph_color: "#996719"
-              ulm_card_graph_name: "UV Index"
-              ulm_card_graph_entity: sensor.esphome_weather_station_uv_index
-              ulm_card_graph_type: fill
-              ulm_card_graph_hours: 24
-
-      - type: horizontal-stack
-        cards:
-          #Wind Speed
-          - type: "custom:button-card"
-            template: card_graph
-            entity: sensor.esphome_weather_station_wind_speed
-            variables:
-              ulm_card_graph_icon: mdi:weather-windy
-              ulm_card_graph_color: "#6F4E37"
-              ulm_card_graph_name: "Current Wind Speed"
-              ulm_card_graph_entity: sensor.esphome_weather_station_wind_speed
-              ulm_card_graph_type: fill
-              ulm_card_graph_hours: 24
-
-          #Wind Speed
-          - type: "custom:button-card"
-            template: card_graph
-            entity: sensor.esphome_weather_station_wind_speed_average
-            variables:
-              ulm_card_graph_icon: mdi:weather-windy
-              ulm_card_graph_color: "#6F4E37"
-              ulm_card_graph_name: "Average Wind Speed"
-              ulm_card_graph_entity: sensor.esphome_weather_station_wind_speed_average
-              ulm_card_graph_type: fill
-              ulm_card_graph_hours: 24
-
-      - type: horizontal-stack
-        cards:
-          #Wind Speed
-          - type: "custom:button-card"
-            template: card_graph
-            entity: sensor.esphome_weather_station_rainfall_per_min
-            variables:
-              ulm_card_graph_icon: mdi:weather-rainy
-              ulm_card_graph_color: "#6F4E37"
-              ulm_card_graph_name: "Rainfall per minute"
-              ulm_card_graph_entity: sensor.esphome_weather_station_rainfall_per_min
-              ulm_card_graph_type: fill
-              ulm_card_graph_hours: 24
-
-          #Wind Speed
-          - type: "custom:button-card"
-            template: card_graph
-            entity: sensor.esphome_weather_station_total_daily_rain
-            variables:
-              ulm_card_graph_icon: mdi:weather-rainy
-              ulm_card_graph_color: "#6F4E37"
-              ulm_card_graph_name: "Total daily rain"
-              ulm_card_graph_entity: sensor.esphome_weather_station_total_daily_rain
-              ulm_card_graph_type: fill
-              ulm_card_graph_hours: 24
-
-      - type: horizontal-stack
-        cards:
-          - type: "custom:button-card"
-            template: chip_mdi_icon_state
-            variables:
-              ulm_chip_mdi_icon_state_entity: sensor.esphome_weather_station_beaufort_wind_scale
-              ulm_chip_mdi_icon_state_icon: mdi:tailwind
-
-          - type: "custom:button-card"
-            color_type: blank-card
-
-          - type: "custom:button-card"
-            template: chip_mdi_icon_state
-            variables:
-              ulm_chip_mdi_icon_state_entity: sensor.esphome_weather_station_dew_point
-              ulm_chip_mdi_icon_state_icon: mdi:thermometer-alert
-
+      # eCO2 and TVOC
       - type: horizontal-stack
         cards:
           # eCO2
-          - type: "custom:button-card"
-            template: card_graph
-            entity: sensor.esphome_weather_station_eco2_value
-            variables:
-              ulm_card_graph_icon: mdi:molecule-co2
-              ulm_card_graph_color: "#6F4E37"
-              ulm_card_graph_name: "eCO2"
-              ulm_card_graph_entity: sensor.esphome_weather_station_eco2_value
-              ulm_card_graph_type: fill
-              ulm_card_graph_hours: 24
+          - type: vertical-stack
+            in_card: true
+            cards:
+              - type: "custom:flex-horseshoe-card"
+                entities:
+                  - entity: sensor.esphome_weather_station_eco2_value
+                    decimals: 0
+                    name: "CO2"
+                    unit: "ppm"
+                    icon: mdi:molecule-co2
+                  - entity: sensor.weather_station_daily_minimum_eco2
+                    name: "Min"
+                    decimals: 0
+                    unit: "ppm"
+                  - entity: sensor.weather_station_daily_maximum_eco2
+                    name: Max
+                    decimals: 0
+                    unit: "ppm"
+                show:
+                  horseshoe_style: "colorstop"
+                layout:
+                  icons:
+                    - id: 0
+                      entity_index: 0
+                      xpos: 6
+                      ypos: 8
+                      size: 1.3
+                  hlines:
+                    - id: 0
+                      xpos: 50
+                      ypos: 42
+                      length: 82
+                      styles:
+                        - stroke: var(--primary-text-color);
+                        - stroke-width: 2;
+                        - opacity: 0.5;
+                        - stroke-linecap: round;
+                      color: "#FFF6E3"
+                    - id: 1
+                      xpos: 50
+                      ypos: 70
+                      length: 73
+                      styles:
+                        - stroke: var(--primary-text-color);
+                        - stroke-width: 2;
+                        - opacity: 0.5;
+                        - stroke-linecap: round;
+                      color: "#FFF6E3"
+                  vlines:
+                    - id: 0
+                      xpos: 50
+                      ypos: 56
+                      length: 26
+                      styles:
+                        - stroke: var(--primary-text-color);
+                        - opacity: 0.5;
+                        - stroke-width: 2;
+                        - stroke-linecap: round;
+                  states:
+                    # Current
+                    - id: 0
+                      entity_index: 0
+                      xpos: 50
+                      ypos: 36
+                      styles:
+                        - font-size: 36px;
+                    # Min
+                    - id: 1
+                      entity_index: 1
+                      xpos: 46
+                      ypos: 56
+                      styles:
+                        - text-anchor: end;
+                        - font-size: 18px;
+                    # Max
+                    - id: 2
+                      entity_index: 2
+                      xpos: 54
+                      ypos: 56
+                      styles:
+                        - text-anchor: start;
+                        - font-size: 18px;
+                  names:
+                    - id: 0
+                      entity_index: 0
+                      xpos: 50
+                      ypos: 95
+                      styles:
+                        - font-size: 13px;
+                        #- text-anchor: start;
+                        - opacity: 0.7;
+                    - id: 1
+                      entity_index: 1
+                      xpos: 46
+                      ypos: 64
+                      styles:
+                        - font-size: 10px;
+                        - text-anchor: end;
+                        - opacity: 0.7;
+                    - id: 2
+                      entity_index: 2
+                      xpos: 54
+                      ypos: 64
+                      styles:
+                        - font-size: 10px;
+                        - text-anchor: start;
+                        - opacity: 0.7;
+                horseshoe_scale:
+                  min: 0
+                  max: 6000
+                color_stops:
+                  0: "#228127"
+                  400: "#FFF533"
+                  1000: "#FFA81D"
+                  2000: "#9E0000"
+                  5000: "#6B3858"
+
+              - type: custom:mini-graph-card
+                entities:
+                  - sensor.esphome_weather_station_eco2_value
+                hours_to_show: 24
+                height: 150
+                show:
+                  icon: false
+                  name: false
+                  state: false
+                line_width: 8
+                color_thresholds:
+                  - value: 0
+                    color: "#228127"
+                  - value: 400
+                    color: "#FFF533"
+                  - value: 1000
+                    color: "#FFA81D"
+                  - value: 2000
+                    color: "#9E0000"
+                  - value: 5000
+                    color: "#6B3858"
 
           # TVOC
-          - type: "custom:button-card"
-            template: card_graph
-            entity: sensor.esphome_weather_station_total_volatile_organic_compound
-            variables:
-              ulm_card_graph_icon: mdi:heat-wave
-              ulm_card_graph_color: "#d6fffa"
-              ulm_card_graph_name: "Total Volatile Organic Compound"
-              ulm_card_graph_entity: sensor.esphome_weather_station_total_volatile_organic_compound
-              ulm_card_graph_type: fill
-              ulm_card_graph_hours: 24
+          - type: vertical-stack
+            in_card: true
+            cards:
+              - type: "custom:flex-horseshoe-card"
+                entities:
+                  - entity: sensor.esphome_weather_station_total_volatile_organic_compound
+                    decimals: 0
+                    name: "TVOC"
+                    unit: "ppb"
+                    icon: mdi:heat-wave
+                  - entity: sensor.weather_station_daily_minimum_tvoc
+                    name: "Min"
+                    decimals: 0
+                    unit: "ppb"
+                  - entity: sensor.weather_station_daily_maximum_tvoc
+                    name: Max
+                    decimals: 0
+                    unit: "ppb"
+                show:
+                  horseshoe_style: "colorstop"
+                layout:
+                  icons:
+                    - id: 0
+                      entity_index: 0
+                      xpos: 6
+                      ypos: 8
+                      size: 1.3
+                  hlines:
+                    - id: 0
+                      xpos: 50
+                      ypos: 42
+                      length: 82
+                      styles:
+                        - stroke: var(--primary-text-color);
+                        - stroke-width: 2;
+                        - opacity: 0.5;
+                        - stroke-linecap: round;
+                      color: "#FFF6E3"
+                    - id: 1
+                      xpos: 50
+                      ypos: 70
+                      length: 73
+                      styles:
+                        - stroke: var(--primary-text-color);
+                        - stroke-width: 2;
+                        - opacity: 0.5;
+                        - stroke-linecap: round;
+                      color: "#FFF6E3"
+                  vlines:
+                    - id: 0
+                      xpos: 50
+                      ypos: 56
+                      length: 26
+                      styles:
+                        - stroke: var(--primary-text-color);
+                        - opacity: 0.5;
+                        - stroke-width: 2;
+                        - stroke-linecap: round;
+                  states:
+                    # Current
+                    - id: 0
+                      entity_index: 0
+                      xpos: 50
+                      ypos: 36
+                      styles:
+                        - font-size: 36px;
+                    # Min
+                    - id: 1
+                      entity_index: 1
+                      xpos: 46
+                      ypos: 56
+                      styles:
+                        - text-anchor: end;
+                        - font-size: 18px;
+                    # Max
+                    - id: 2
+                      entity_index: 2
+                      xpos: 54
+                      ypos: 56
+                      styles:
+                        - text-anchor: start;
+                        - font-size: 18px;
+                  names:
+                    - id: 0
+                      entity_index: 0
+                      xpos: 50
+                      ypos: 95
+                      styles:
+                        - font-size: 13px;
+                        #- text-anchor: start;
+                        - opacity: 0.7;
+                    - id: 1
+                      entity_index: 1
+                      xpos: 46
+                      ypos: 64
+                      styles:
+                        - font-size: 10px;
+                        - text-anchor: end;
+                        - opacity: 0.7;
+                    - id: 2
+                      entity_index: 2
+                      xpos: 54
+                      ypos: 64
+                      styles:
+                        - font-size: 10px;
+                        - text-anchor: start;
+                        - opacity: 0.7;
+                horseshoe_scale:
+                  min: 0
+                  max: 3500
+                color_stops:
+                  0: "#228127" # Low
+                  220: "#FFF533" # Acceptable
+                  660: "#FFA81D" # Marginal
+                  1430: "#9E0000" # High
+                  2200: "#00518F" # Very High
+                  3300: "#6B3858" # Very High
 
-      - type: horizontal-stack
-        cards:
-          - type: custom:compass-card
-            header:
-              title:
-                value: Wind Direction
-            indicator_sensors:
-              - sensor: sensor.esphome_weather_station_wind_cardinal_direction
-                indicator:
-                type: arrow_inward
-            value_sensors:
-              - sensor: sensor.esphome_weather_station_wind_heading
-            compass:
-              north:
-                show: true
-              east:
-                show: true
-              west:
-                show: true
-              south:
-                show: true
-
-          - type: "custom:button-card"
-            color_type: blank-card
-
+              - type: custom:mini-graph-card
+                entities:
+                  - sensor.esphome_weather_station_total_volatile_organic_compound
+                hours_to_show: 24
+                height: 150
+                show:
+                  icon: false
+                  name: false
+                  state: false
+                line_width: 8
+                color_thresholds:
+                  - value: 0
+                    color: "#228127"
+                  - value: 220
+                    color: "#FFF533"
+                  - value: 660
+                    color: "#FFA81D"
+                  - value: 1430
+                    color: "#9E0000"
+                  - value: 2200
+                    color: "#00518F"
+                  - value: 3300
+                    color: "#6B3858"
   # Interior
   - type: vertical-stack
     cards:
