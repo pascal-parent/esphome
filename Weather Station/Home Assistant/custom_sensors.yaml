@@ -1,0 +1,69 @@
+---
+#----------------------------------------------------------
+# Sensors for Weather Station
+#----------------------------------------------------------
+
+# Temperature
+- platform: daily_min_max
+  name: Weather Station Daily Maximum Temperature
+  type: max
+  entity_ids:
+    - sensor.esphome_weather_station_dallas_temperature
+
+- platform: daily_min_max
+  name: Weather Station Daily Minimum Temperature
+  type: min
+  entity_ids:
+    - sensor.esphome_weather_station_dallas_temperature
+
+# Humidity
+- platform: daily_min_max
+  name: Weather Station Daily Maximum Humidity
+  type: max
+  entity_ids:
+    - sensor.esphome_weather_station_humidity
+
+- platform: daily_min_max
+  name: Weather Station Daily Minimum Humidity
+  type: min
+  entity_ids:
+    - sensor.esphome_weather_station_humidity
+
+# Wind Speed
+- platform: daily_min_max
+  name: Weather Station Daily Maximum Wind Speed
+  type: max
+  entity_ids:
+    - sensor.esphome_weather_station_wind_speed
+
+- platform: daily_min_max
+  name: Weather Station Daily Minimum Wind Speed
+  type: min
+  entity_ids:
+    - sensor.esphome_weather_station_wind_speed
+
+# eCO2
+- platform: daily_min_max
+  name: Weather Station Daily Maximum eCO2
+  type: max
+  entity_ids:
+    - sensor.esphome_weather_station_eco2_value
+
+- platform: daily_min_max
+  name: Weather Station Daily Minimum eCO2
+  type: min
+  entity_ids:
+    - sensor.esphome_weather_station_eco2_value
+
+# TVOC
+- platform: daily_min_max
+  name: Weather Station Daily Maximum TVOC
+  type: max
+  entity_ids:
+    - sensor.esphome_weather_station_total_volatile_organic_compound
+
+- platform: daily_min_max
+  name: Weather Station Daily Minimum TVOC
+  type: min
+  entity_ids:
+    - sensor.esphome_weather_station_total_volatile_organic_compound
