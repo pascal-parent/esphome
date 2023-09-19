@@ -1,0 +1,864 @@
+################################################################################
+# Substitution Variables
+################################################################################
+substitutions:
+  device_name: esphome-kitchen-display
+  device_internal_name: esphome_kitchen_display
+  device_friendly_name: ESPHome Kitchen Display
+  device_ip_address: xxx.xxx.xxx.xxx
+  device_sampling_time: 30s
+
+################################################################################
+# Globals
+################################################################################
+globals: ##to set default reboot behavior
+  - id: wifi_connection
+    type: bool
+    restore_value: no
+    initial_value: "false"
+
+################################################################################
+# Board Configuration
+################################################################################
+esphome:
+  name: ${device_name}
+  friendly_name: ${device_friendly_name}
+
+esp32:
+  board: esp32-s3-devkitc-1
+  framework:
+    type: arduino
+    version: 2.0.9
+
+################################################################################
+# Enable logging
+################################################################################
+logger:
+
+################################################################################
+# Enable Home Assistant API
+################################################################################
+api:
+  reboot_timeout: 0s
+  encryption:
+    key: !secret api_encryption_key
+
+ota:
+  safe_mode: true
+  reboot_timeout: 10min
+  num_attempts: 5
+  password: !secret web_server_password
+
+################################################################################
+# WiFi
+################################################################################
+wifi:
+  networks:
+    - ssid: !secret wifi_ssid
+      password: !secret wifi_password
+
+  power_save_mode: none
+
+  manual_ip:
+    static_ip: ${device_ip_address}
+    gateway: !secret gateway_address
+    subnet: !secret subnet_address
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: ${device_friendly_name}
+    password: !secret web_server_password
+
+captive_portal:
+
+################################################################################
+# Status led
+################################################################################
+status_led:
+  pin:
+    number: GPIO38
+
+################################################################################
+# I2C
+################################################################################
+i2c:
+  sda: GPIO5
+  scl: GPIO4
+  scan: false
+
+################################################################################
+# SPI
+################################################################################
+spi:
+  clk_pin: GPIO12
+  mosi_pin: GPIO11
+  miso_pin: GPIO13
+
+################################################################################
+# UART
+################################################################################
+uart:
+  id: ${device_internal_name}_uart_presence
+  tx_pin: GPIO17
+  rx_pin: GPIO18
+  baud_rate: 256000
+  parity: NONE
+  stop_bits: 1
+
+################################################################################
+# LD2410 Sensor
+################################################################################
+ld2410:
+  uart_id: ${device_internal_name}_uart_presence
+  id: ${device_internal_name}_ld2410
+
+################################################################################
+# Time Sensor
+################################################################################
+time:
+  - platform: homeassistant
+    id: internal_time
+
+################################################################################
+# Text Sensors
+################################################################################
+text_sensor:
+  #-------------------------------------------------------------------------------
+  # ESP32 internal sensors
+  #-------------------------------------------------------------------------------
+  - platform: wifi_info
+    ip_address:
+      name: IP Address
+      id: ${device_internal_name}_ip_address
+    ssid:
+      name: Connected SSID
+      id: ${device_internal_name}_connected_ssid
+    mac_address:
+      name: Mac Wifi Address
+      id: ${device_internal_name}_mac_address
+
+  - platform: version
+    name: "ESPHome Version"
+    hide_timestamp: true
+
+  #-------------------------------------------------------------------------------
+  # Custom Text sensors
+  #-------------------------------------------------------------------------------
+  - platform: template
+    name: Uptime Human Readable
+    id: ${device_internal_name}_uptime_human
+    icon: mdi:clock-start
+
+  #-------------------------------------------------------------------------------
+  # Home Assistant Text sensors
+  #-------------------------------------------------------------------------------
+
+  # Next loadshedding Time Begin
+  - platform: homeassistant
+    id: loadshedding_start
+    entity_id: sensor.next_loadshedding_start_time_raw
+    internal: true
+
+  # Next loadshedding Time End
+  - platform: homeassistant
+    id: loadshedding_end
+    entity_id: sensor.next_loadshedding_end_time_raw
+    internal: true
+
+  # Forcast Weather Conditions
+  - platform: homeassistant
+    id: weather_forcast_condition
+    entity_id: weather.tomorrow_io_home_nowcast
+    internal: True
+
+  # Load shedding status
+  - platform: homeassistant
+    id: load_shedding_status
+    entity_id: calendar.loadshedding_local_events
+    internal: True
+
+################################################################################
+# Binary Sensors
+################################################################################
+binary_sensor:
+  # ESP Status
+  - platform: status
+    name: "Status"
+    id: ${device_internal_name}_device_status
+
+  # LD2410
+  - platform: ld2410
+    has_target:
+      name: Presence
+      # Switch the screen off when no one is in the room
+      on_state:
+        then:
+          - light.toggle:
+              id: backlight
+    has_moving_target:
+      name: Moving Target
+    has_still_target:
+      name: Still Target
+
+################################################################################
+# Sensors
+################################################################################
+sensor:
+  #-------------------------------------------------------------------------------
+  # ESP Generic Sensors
+  #-------------------------------------------------------------------------------
+
+  # Internal Temperature
+  - platform: internal_temperature
+    name: Internal Temperature
+    id: device_temperature
+    update_interval: ${device_sampling_time}
+
+  # WiFi
+  - platform: wifi_signal
+    name: "WiFi Signal Sensor"
+    id: ${device_internal_name}_wifi_signal_sensor
+    update_interval: ${device_sampling_time}
+
+  # Uptime
+  - platform: uptime
+    name: "Uptime Sensor"
+    id: ${device_internal_name}_uptime_sensor
+    update_interval: ${device_sampling_time}
+    on_raw_value:
+      then:
+        - text_sensor.template.publish:
+            id: ${device_internal_name}_uptime_human
+            state: !lambda |-
+              int seconds = round(id(${device_internal_name}_uptime_sensor).raw_state);
+              int days = seconds / (24 * 3600);
+              seconds = seconds % (24 * 3600);
+              int hours = seconds / 3600;
+              seconds = seconds % 3600;
+              int minutes = seconds /  60;
+              seconds = seconds % 60;
+              return (
+                (days ? to_string(days) + "d " : "") +
+                (hours ? to_string(hours) + "h " : "") +
+                (minutes ? to_string(minutes) + "m " : "") +
+                (to_string(seconds) + "s")
+              ).c_str();
+
+  ################################################################################
+  # Home Assistant Custom Sensors
+  ################################################################################
+
+  #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  # Power related
+  #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+  # Grid Total Power (Watts)
+  - platform: homeassistant
+    name: "Grid"
+    id: grid_power
+    entity_id: sensor.efergy_power_usage
+    unit_of_measurement: W
+    internal: True
+
+  # Grid import Power (Watts)
+  - platform: homeassistant
+    name: "Grid"
+    id: grid_import_power
+    entity_id: sensor.sunsynk_grid_power
+    unit_of_measurement: W
+    internal: True
+
+  # Solar generation (Watts)
+  - platform: homeassistant
+    name: "Solar"
+    id: solar_power
+    entity_id: sensor.sunsynk_pv1_power
+    unit_of_measurement: W
+    internal: True
+
+  # Battery Power  (Watts) [Negative Power is Charging]
+  - platform: homeassistant
+    name: "Battery"
+    id: battery_power
+    entity_id: sensor.sunsynk_battery_power
+    unit_of_measurement: W
+    internal: True
+
+  # Inverter Output Power (Watts)
+  - platform: homeassistant
+    name: "Power"
+    id: inverter_power
+    entity_id: sensor.sunsynk_essential_power
+    unit_of_measurement: W
+    internal: True
+
+  # Current battery Charge (%)
+  - platform: homeassistant
+    name: "Battery Charge"
+    id: inverter_battery_charge
+    entity_id: sensor.sunsynk_battery_soc
+    unit_of_measurement: "%"
+    internal: True
+
+  - platform: homeassistant
+    name: "Grid Frequency"
+    id: grid_frequency
+    entity_id: sensor.sunsynk_grid_frequency
+    internal: True
+
+  # Load shedding stage
+  - platform: homeassistant
+    id: local_load_shedding_stage
+    entity_id: sensor.loadshedding_local_status
+    internal: True
+
+  - platform: homeassistant
+    id: national_load_shedding_stage
+    entity_id: sensor.loadshedding_national_status
+    internal: True
+
+  #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  # Weather related
+  #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+  # Forcast Weather Min Temp
+  - platform: homeassistant
+    id: weather_forcast_min_temp
+    entity_id: sensor.weather_forcast_min_temp
+    internal: True
+
+  # Forcast Weather Max Temp
+  - platform: homeassistant
+    id: weather_forcast_max_temp
+    entity_id: sensor.weather_forecast_max_temp
+    internal: True
+
+  #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  # Weather Realtime
+  #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+  # Realtime Weather Tempperature
+  - platform: homeassistant
+    id: weather_realtime_temperature
+    entity_id: sensor.esphome_weather_station_dallas_temperature
+    internal: True
+
+  # Realtime Weather Humidity
+  - platform: homeassistant
+    id: weather_realtime_humidity
+    entity_id: sensor.esphome_weather_station_humidity
+    internal: True
+
+  # Realtime Weather Lightning
+
+  #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  # Gas related
+  #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+  # Gas capacity sensor => delete when enabling the Mopeka Pro Check BLE virtual Sensor
+  - platform: homeassistant
+    id: gas_capacity_sensor
+    entity_id: sensor.esphome_kitchen_lpg_level
+    internal: True
+
+  # Kitchen Mopeka Pro Check BLE virtual Sensor
+  #- platform: mopeka_pro_check
+  #  mac_address: DC:63:39:EB:85:7E
+  #  tank_type: custom
+  #  custom_distance_full: 26cm
+  #  custom_distance_empty: 1cm
+  #  temperature:
+  #    name: "LPG Sensor Temp"
+  #    id: ${device_name}_lpg_tank_sensor_temp
+  #  level:
+  #    name: "LPG Level"
+  #    id: ${device_name}_lpg_tank_level
+  #  distance:
+  #    name: "LPG Distance"
+  #    id: ${device_name}_lpg_tank_distance
+  #  battery_level:
+  #    name: "LPG Sensor battery level"
+  #    id: ${device_name}_lpg_tank_sensor_battery
+
+  #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  # Internal sensors
+  #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+  #-------------------------------------------------------------------------------
+  # SHT40 Sensors (0x44)
+  #-------------------------------------------------------------------------------
+  - platform: sht4x
+    temperature:
+      name: "Temperature"
+      id: temperature
+    humidity:
+      name: "Relative Humidity"
+      id: relative_humidity
+    precision: High
+    update_interval: ${device_sampling_time}
+
+  #-------------------------------------------------------------------------------
+  # GY-302/BH1750 Light Sensor (0x23)
+  #-------------------------------------------------------------------------------
+  - platform: bh1750
+    name: "Illuminance"
+    id: illuminance
+    address: 0x23
+    update_interval: ${device_sampling_time}
+
+  #-------------------------------------------------------------------------------
+  # LD2410D Millimeter Wave Sensor
+  #-------------------------------------------------------------------------------
+  - platform: ld2410
+    moving_distance:
+      name: Moving Distance
+    still_distance:
+      name: Still Distance
+    moving_energy:
+      name: Move Energy
+    still_energy:
+      name: Still Energy
+    detection_distance:
+      name: Detection Distance
+    g0:
+      move_energy:
+        name: g0 move energy
+      still_energy:
+        name: g0 still energy
+    g1:
+      move_energy:
+        name: g1 move energy
+      still_energy:
+        name: g1 still energy
+    g2:
+      move_energy:
+        name: g2 move energy
+      still_energy:
+        name: g2 still energy
+    g3:
+      move_energy:
+        name: g3 move energy
+      still_energy:
+        name: g3 still energy
+    g4:
+      move_energy:
+        name: g4 move energy
+      still_energy:
+        name: g4 still energy
+    g5:
+      move_energy:
+        name: g5 move energy
+      still_energy:
+        name: g5 still energy
+    g6:
+      move_energy:
+        name: g6 move energy
+      still_energy:
+        name: g6 still energy
+    g7:
+      move_energy:
+        name: g7 move energy
+      still_energy:
+        name: g7 still energy
+    g8:
+      move_energy:
+        name: g8 move energy
+      still_energy:
+        name: g8 still energy
+
+################################################################################
+# Switch
+################################################################################
+switch:
+  - platform: restart
+    name: "Restart"
+    id: device_restart
+
+  - platform: safe_mode
+    name: Use Safe Mode
+    id: device_safe_mode
+
+  - platform: ld2410
+    # To fine tune
+    engineering_mode:
+      name: "engineering mode"
+    # To switch the Bluetooth on and off
+    bluetooth:
+      name: "control bluetooth"
+      restore_mode: RESTORE_DEFAULT_OFF #Switch the BT off
+
+################################################################################
+# Interval
+################################################################################
+interval:
+  - interval: 10s
+    then:
+      - if:
+          condition:
+            wifi.connected:
+          then:
+            - lambda: |-
+                id(wifi_connection) = true;
+          else:
+            - lambda: |-
+                id(wifi_connection) = false;
+
+################################################################################
+# Output
+################################################################################
+output:
+  - platform: ledc
+    pin: GPIO14
+    id: backlight_pwm
+
+################################################################################
+# Number
+################################################################################
+number:
+  - platform: ld2410
+    timeout:
+      name: timeout
+    light_threshold:
+      name: light threshold
+    max_move_distance_gate:
+      name: max move distance gate
+    max_still_distance_gate:
+      name: max still distance gate
+    g0:
+      move_threshold:
+        name: g0 move threshold
+      still_threshold:
+        name: g0 still threshold
+    g1:
+      move_threshold:
+        name: g1 move threshold
+      still_threshold:
+        name: g1 still threshold
+    g2:
+      move_threshold:
+        name: g2 move threshold
+      still_threshold:
+        name: g2 still threshold
+    g3:
+      move_threshold:
+        name: g3 move threshold
+      still_threshold:
+        name: g3 still threshold
+    g4:
+      move_threshold:
+        name: g4 move threshold
+      still_threshold:
+        name: g4 still threshold
+    g5:
+      move_threshold:
+        name: g5 move threshold
+      still_threshold:
+        name: g5 still threshold
+    g6:
+      move_threshold:
+        name: g6 move threshold
+      still_threshold:
+        name: g6 still threshold
+    g7:
+      move_threshold:
+        name: g7 move threshold
+      still_threshold:
+        name: g7 still threshold
+    g8:
+      move_threshold:
+        name: g8 move threshold
+      still_threshold:
+        name: g8 still threshold
+
+################################################################################
+# Light
+################################################################################
+# Define a monochromatic, dimmable light for the backlight
+light:
+  - platform: monochromatic
+    output: backlight_pwm
+    name: "Display Backlight"
+    id: backlight
+    restore_mode: ALWAYS_OFF
+
+################################################################################
+# Display
+################################################################################
+display:
+  - platform: ili9xxx
+    id: ${device_internal_name}_display
+    model: ILI9488
+    cs_pin: GPIO10
+    dc_pin: GPIO9
+    reset_pin: GPIO8
+    color_palette: NONE
+    lambda: |-
+      // Dimensions: 480px x 320px
+      it.fill(Color::BLACK);
+
+      // ## Header ##
+      // # Date
+      it.strftime(10, 10, id(roboto_15_bold), "%a, %d %b %Y", id(internal_time).now());
+
+      // # Weather Icons
+      int horizontalPosition = 200;
+
+      if (id(weather_forcast_condition).state == "clear-night")
+      {
+         it.printf(horizontalPosition, 10, id(icon_font_17), my_yellow, "%s", "\U000F0594"); // clear-night
+      }
+      else if (id(weather_forcast_condition).state == "cloudy")
+      {
+         it.printf(horizontalPosition, 10, id(icon_font_17), my_white, "%s", "\U000F0590"); // cloudy
+      }  
+      else if (id(weather_forcast_condition).state == "fog")
+      {
+         it.printf(horizontalPosition, 10, id(icon_font_17), my_white, "%s", "\U000F0591"); // fog
+      } 
+      else if (id(weather_forcast_condition).state == "hail")
+      {
+         it.printf(horizontalPosition, 10, id(icon_font_17), my_white, "%s", "\U000F0592"); // hail
+      } 
+      else if (id(weather_forcast_condition).state == "lightning")
+      {
+         it.printf(horizontalPosition, 10, id(icon_font_17), my_white, "%s", "\U000F0593"); // lightning
+      } 
+      else if (id(weather_forcast_condition).state == "lightning-rainy")
+      {
+         it.printf(horizontalPosition, 10, id(icon_font_17), my_white, "%s", "\U000F067E"); // lightning-rainy
+      } 
+      else if (id(weather_forcast_condition).state == "partlycloudy")
+      {
+         it.printf(horizontalPosition, 10, id(icon_font_17), my_white, "%s", "\U000F0595"); // partlycloudy
+      }
+      else if (id(weather_forcast_condition).state == "pouring")
+      {
+         it.printf(horizontalPosition, 10, id(icon_font_17), my_white, "%s", "\U000F0596"); // pouring
+      }
+      else if (id(weather_forcast_condition).state == "rainy")
+      {
+         it.printf(horizontalPosition, 10, id(icon_font_17), my_white, "%s", "\U000F0597"); // rainy
+      }
+      else if (id(weather_forcast_condition).state == "snowy")
+      {
+         it.printf(horizontalPosition, 10, id(icon_font_17), my_white, "%s", "\U000F0598"); // snowy
+      }
+      else if (id(weather_forcast_condition).state == "snowy-rainy")
+      {
+         it.printf(horizontalPosition, 10, id(icon_font_17), my_white, "%s", "\U000F0F35"); // snowy-rainy
+      }
+      else if (id(weather_forcast_condition).state == "sunny")
+      {
+         it.printf(horizontalPosition, 10, id(icon_font_17), my_yellow, "%s", "\U000F0599"); // sunny
+      }
+      else if (id(weather_forcast_condition).state == "windy")
+      {
+         it.printf(horizontalPosition, 10, id(icon_font_17), my_yellow, "%s", "\U000F059D"); // windy
+      }
+      else if (id(weather_forcast_condition).state == "windy-variant")
+      {
+         it.printf(horizontalPosition, 10, id(icon_font_17), my_yellow, "%s", "\U000F059E"); // windy-variant
+      }
+      else if (id(weather_forcast_condition).state == "exceptional")
+      {
+         it.printf(horizontalPosition, 10, id(icon_font_17), my_yellow, "%s", "\U000F0026"); // exceptional
+      }
+
+      // #Weather Min / Max Temp
+      it.printf(230, 10, id(roboto_15_bold), "%.0f-%.0f°c", id(weather_forcast_min_temp).state, id(weather_forcast_max_temp).state);
+
+      it.printf(450, 10, id(icon_font_17), "%s", id(wifi_connection) ? "\U000F05A9" : "\U000F05AA"); //Wifi Status
+
+      // ## Body ##
+      it.line(0, 50, 480, 50, my_white); // separator
+
+      // #- Left Column -#
+      // Solar Energy 
+      it.printf(10, 60, id(icon_font_17), "%s", "\U000F0A72");
+
+      if (id(solar_power).state > 1999 && id(solar_power).state < 2400) {
+        it.printf(40, 60, id(roboto_15_bold), "%.0fw", my_pumpkin, id(solar_power).state); 
+      } 
+      else if (id(solar_power).state > 2399) 
+      {
+        it.printf(40, 60, id(roboto_15_bold), "%.0fw", my_green, id(solar_power).state); 
+      } 
+      else if (id(solar_power).state < 2000)
+      {
+        it.printf(40, 60, id(roboto_15_bold), "%.0fw", my_white, id(solar_power).state);
+      }
+
+      // #Battery state
+      it.printf(10, 90, id(icon_font_17), "%s", "\U000F1901");
+      it.printf(40, 90, id(roboto_15_bold), "%.0fw (%.0f%%)", id(battery_power).state, id(inverter_battery_charge).state);
+
+      // #Inverter Load state
+      it.printf(10, 120, id(icon_font_17), "%s", "\U000F192D");
+
+      if (id(grid_frequency).state == 0) {
+        it.print(40, 120, id(roboto_15_bold), my_burgundy, "Disconnected");
+      } else {
+        it.printf(40, 120, id(roboto_15_bold), "%.0fw", id(grid_import_power).state);
+      }
+
+      // #Grid Import state
+      it.printf(10, 150, id(icon_font_17), "%s", "\U000F1903");
+      it.printf(40, 150, id(roboto_15_bold), "%.0fw", id(inverter_power).state);
+
+      // #Grid total power state
+      it.printf(10, 180, id(icon_font_17), "%s", "\U000F0D3E");
+
+      // #Is it loadshedding?
+      if (id(grid_power).state == 0 ) { 
+        it.print(40, 180, id(roboto_15_bold), my_burgundy, "Loadshedding"); // Loadshedding
+      } else {
+        it.printf(40, 180, id(roboto_15_bold), "%.0fw", id(grid_power).state);
+      }
+
+      it.line(0, 210, 480, 210, my_white); // left horizontal separator
+
+      // #- Loadshedding section -#
+
+      // #Loadshedding Stage
+      it.printf(10, 220, id(icon_font_17), "%s", "\U000F19DD");
+
+      if( id(national_load_shedding_stage).state > id(local_load_shedding_stage).state ) {
+        it.printf(40, 220, id(roboto_15_bold), "Stage %.0f", id(national_load_shedding_stage).state);
+      } else {
+        it.printf(40, 220, id(roboto_15_bold), "Stage %.0f", id(local_load_shedding_stage).state);
+      }
+
+      // #Loadsheding Schedule
+      it.printf(10, 250, id(icon_font_17), "%s", "\U000F0955");
+
+      if (id(loadshedding_start).state == "unavailable") {
+        it.print(40, 250, id(roboto_15_bold), "Nothing Today");
+      } else {
+        it.printf(40, 250, id(roboto_15_bold), "%s - %s", id(loadshedding_start).state.c_str(), id(loadshedding_end).state.c_str());    
+      }
+
+      // #- Right Column -#
+
+      // #Time
+      it.strftime(333, 50, id(fairplay_60_bold), my_white, TextAlign::TOP_CENTER, "%H:%M", id(internal_time).now());
+
+      // #Outside temperature
+      it.printf(190, 170, id(icon_font_40), my_white, TextAlign::TOP_LEFT,"%s", "\U000F050F");
+      it.printf(220, 170, id(roboto_40_bold), my_white, TextAlign::TOP_LEFT, "%.1f°C", id(weather_realtime_temperature).state);
+
+      // #Outside humidity
+      it.printf(390, 170, id(icon_font_40), my_white, TextAlign::TOP_RIGHT,"%s", "\U000F058E");
+      it.printf(470, 170, id(roboto_40_bold), my_white, TextAlign::TOP_RIGHT, "%.1f%%", id(weather_realtime_humidity).state);
+
+      it.line(180, 50, 180, 280, my_white); // vertical separator
+      it.line(0, 280, 480, 280, my_white); // lower horizontal separator
+
+      // ## Footer ##
+      // #Room Temperature
+      it.printf(10, 302, id(icon_font_17), my_white, TextAlign::CENTER_LEFT,"%s", "\U000F050F");
+      it.printf(35, 302, id(roboto_15_bold), my_white, TextAlign::CENTER_LEFT, "%.1f°C", id(temperature).state);
+
+      // #Room Humidity
+      it.printf(110, 302, id(icon_font_17), my_white, TextAlign::CENTER_LEFT, "%s", "\U000F058E");
+      it.printf(190, 302, id(roboto_15_bold), my_white, TextAlign::CENTER_RIGHT, "%.1f%%", id(relative_humidity).state);
+
+      // #Gas Capacity
+      it.printf(400, 302, id(icon_font_17), my_white, TextAlign::CENTER_LEFT, "%s", "\U000F1357");
+      it.printf(470, 302, id(roboto_15_bold), my_white, TextAlign::CENTER_RIGHT, "%.0f%%", id(gas_capacity_sensor).state);
+
+################################################################################
+# Fonts
+################################################################################
+font:
+  - file: "gfonts://Roboto"
+    id: roboto_15
+    size: 20
+
+  - file:
+      type: gfonts
+      family: Roboto
+      weight: 700
+    id: roboto_15_bold
+    size: 20
+
+  - file:
+      type: gfonts
+      family: Roboto
+      weight: 700
+    id: roboto_40_bold
+    size: 30
+
+  - file:
+      type: gfonts
+      family: Nunito Sans
+      weight: 700
+    id: fairplay_60_bold
+    size: 100
+
+  - file: "fonts/materialdesignicons-webfont.ttf"
+    id: icon_font_17
+    size: 22
+    glyphs:
+      - "\U000F05A9" # Wifi
+      - "\U000F05AA" # No wifif
+      - "\U000F0A72" # Solar Energy
+      - "\U000F0D3E" # Grid
+      - "\U000F19DD" # Grid Offline
+      - "\U000F192D" # Invertor Importing
+      - "\U000F1901" # Home Battery
+      - "\U000F050F" # Temperature
+      - "\U000F058E" # Humidity
+      - "\U000F0955" # Load Shedding Clock
+      - "\U000F1903" # House Power
+      - "\U000F0590" # Cloudy
+      - "\U000F0591" # Fog
+      - "\U000F0592" # Hail
+      - "\U000F0F30" # Hazy
+      - "\U000F0593" # Lightning
+      - "\U000F067E" # Lightning Rainy
+      - "\U000F0F31" # Partly Cloudy Night
+      - "\U000F0594" # Clear Night
+      - "\U000F0595" # Partly Cloudy
+      - "\U000F0F32" # Partly Lightning
+      - "\U000F0F33" # Partly Rainy
+      - "\U000F0F34" # Partly Snowy
+      - "\U000F0F35" # Partly Snowy Rainy
+      - "\U000F0596" # Pouring
+      - "\U000F0597" # Rainy
+      - "\U000F0598" # Snowy
+      - "\U000F067F" # Snowy Rainy
+      - "\U000F0599" # Sunny
+      - "\U000F059D" # Windy
+      - "\U000F059E" # Windy Variant
+      - "\U000F0D91" # Motion Detection On
+      - "\U000F1435" # Motion Detection Off
+      - "\U000F1357" # Propane Bottle Full
+      - "\U000F1358" # Propane Bottle Outline
+
+  - file: "fonts/materialdesignicons-webfont.ttf"
+    id: icon_font_40
+    size: 33
+    glyphs:
+      - "\U000F050F" # Temperature
+      - "\U000F058E" # Humidity
+
+################################################################################
+# Color
+################################################################################
+color:
+  - id: my_burgundy
+    hex: "70161E"
+  - id: my_red
+    hex: "FF6D6A"
+  - id: my_yellow
+    hex: "FFFF00"
+  - id: my_green
+    hex: "00FF00"
+  - id: my_blue
+    hex: "0000FF"
+  - id: my_white
+    hex: "FFFFFF"
+  - id: my_gray
+    hex: "858585"
+  - id: my_pumpkin
+    hex: "FC7A1E"

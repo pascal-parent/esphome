@@ -1,8 +1,11 @@
 # ESPHome Energy Display
 
 ***Note: This project is in active development!***
-
+### ESP32 S with a 240*320 ILI9341 3.2in screen
 ![Version 0.1](Images/ESPHome-Energy-Display-Photo-v0.2.jpg)
+
+### ESP32 S3 with PSRAM with a 480*320 ILI9488 4in screen
+![Version 0.2](Images/ESPHome-Energy-Display-Photo-v2.jpeg)
 
 ## Warning!
 
@@ -24,11 +27,19 @@ Since this display is to be mounted in the kitchen, I threw everything and the k
 
 ## The bill of materials
 
+### ESP32 S with a 240*320 ILI9341 screen
 * ESP32, I used a NodeMCU ESP32S Development board, but any ESP32 would work, you'll need to readjust the pins accordingly.
 * A 10uf capacitor to force the ESP32 into programing mode, this is only required for the first upload.
 * Some Jumpers.
 * A breadboard
 * TFT SPI Touchscreen - I used a 3.2in 240*320 ILI9341. Please do not try to use a ILI9488, from what I gather ESPHome is not yet compatible with it.
+* A suitable USB cable for your ESP32
+
+### ESP32 S3 with PSRAM with a 480*320 ILI9488 screen
+* ESP32 S3, I used a ESP32 S3 Development board.
+* Some Jumpers.
+* A breadboard
+* TFT SPI Touchscreen - I used a 4in 480*320 ILI9488.
 * A suitable USB cable for your ESP32
 
 Optionally:
@@ -39,8 +50,9 @@ Optionally:
 - MQ2 Gas/Smoke Sensor, in case something starts burning.
 
 Additional optional sensor devices:
-- An ESP with an MQ-6 sensor to house with the bottle for LPG leaks
+- An ESP with an MQ-6 sensor to house with the bottle for LPG leaks, see mine [here](../LPG%20Gas%20Leak%20Sensor/README.md)
 - A Gas Eye Pro / Mopeka Pro Check for the gas bottle capacity
+- A weather station on your house, see mine [here](../Weather%20Station/README.md)
 
 ## Assembly Diagram
 
@@ -96,6 +108,9 @@ I will share the circuit board and the 3D printable housing here when it is desi
 - Added BLE Tracker section.
 - Added Mopeka Pro Check in the Sensor section.
   - To add this as a sensor please read this [page](https://esphome.io/components/sensor/mopeka_pro_check.html?highlight=mopeka) in the ESPHome documentation.
+
+#### 19 Sept 2023
+- Added the ESP32 S3 with a 4in 480x320 ILI9488 screen configuration file
 
 ## Sponsoring
 
