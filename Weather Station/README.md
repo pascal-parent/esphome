@@ -15,6 +15,7 @@ I've tried to document it sufficiently that it is readable and easy to understan
 
 - 2023-08-04 First beta commit.
 - 2023-08-23 Beta 2, added Wind Direction, Anemometer (Wind Speed), Rain Gauge, AS3935 Franklin Lightning Detector and  CCS811 Air Quality Control Sensor.
+- 2023-10-13 Moved [Home Assistant companion Dashboard](https://github.com/pascal-parent/home-assistant/tree/main/dashboard/weather-page) to the Home Assistant Project Repo
 
 ## About the project
 
@@ -24,6 +25,8 @@ I recently bit the bullet and went ahead, I found something I could partially bu
 I stumbled on this [article](https://www.instructables.com/Solar-Powered-WiFi-Weather-Station-V30/). It sorted 90% of my hardware issues, so I headed to PCBWay and ordered a board [here](https://www.pcbway.com/project/shareproject/Solar_Powered_WiFi_Weather_Station_V3_0.html)
 
 I will not initially put it to sleep as I it will have a permanent 5v attached to it, I have power on the other side of the wall where it will be installed and a long USB cable to reach it, so the solar panel and battery will be for the occasional power loss, I want to eventually go 100% solar but in due time, probably with a bigger battery and a different solar solution but I got to start somewhere right?
+
+You can also find the Home Assistant companion Dashboard [here](https://github.com/pascal-parent/home-assistant/tree/main/dashboard/weather-page)
 
 ### Some valid questions about the project:
 
