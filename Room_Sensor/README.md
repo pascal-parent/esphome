@@ -73,7 +73,7 @@ Please note that there are no LD2410B Sensor part for Fritzing so I used the LD2
 
 Depending on your choice of functionality and requirements I have 3 variants of this board
 1. [ESP-8266](ESPHome/room_sensor_wifi_only.yaml), no frills just does the job [I still need to test this code].
-2. [ESP-32 S](ESPHome/room_sensor_bluetooth.yaml), if you need a Bluetooth proxy
+2. [ESP-32S](ESPHome/room_sensor_bluetooth.yaml), if you need a Bluetooth proxy
 3. [The surveillance ESP32-CAM](ESPHome/room_sensor_camera.yaml), I have one to keep an eye on my dogs when I am away. [Work-in-progress]
 
 ## What comes next?
