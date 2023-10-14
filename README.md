@@ -16,4 +16,4 @@ This is a collection of ESPHome YAML scripts I use, each project has its own fol
 - [Mopeka Pro Check](Mopeka_Pro_Check/README.md) [Added 12 Aug 2023]
 - [Garage Door Controller](Garage_Door_Controller/README.md) [Added 18 Aug 2023]
 - [LPG Gas Leak Sensor](LPG_Gas_Leak_Sensor/README.md) [Added 20 Aug 2023]
-- [LPG Gas Leak Sensor](Room_Sensor/README.md) [Added 14 Oct 2023]
+- [Room Sensor](Room_Sensor/README.md) [Added 14 Oct 2023]
