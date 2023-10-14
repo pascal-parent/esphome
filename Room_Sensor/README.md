@@ -63,8 +63,7 @@ You don't have to use all the sensors but you will find diagrams and code for th
 ## Circuit Diagram
 
 ### NodeMCU ESP-32S Development Board with SHT40
-
-![ESP32S Room Sensor v1](images/room_sensor_bluetooth.png)
+![ESP32S Room Sensor v1](Images/room_sensor_bluetooth.png)
 
 Download the Fritzing file [here](fritzing/room_sensor_bluetooth.fzz)
 
