@@ -62,23 +62,19 @@ You don't have to use all the sensors but you will find diagrams and code for th
 
 ## Circuit Diagram
 
-### ESP-8266 D1 Mini Pro with DHT22
+### NodeMCU ESP-32S Development Board with SHT40
 
-Comming soon
+![ESP32S Room Sensor v1](images/room_sensor_bluetooth.png)
 
-### ESP-32 D1 Mini with SHT40
+Download the Fritzing file [here](fritzing/room_sensor_bluetooth.fzz)
 
-Comming soon
-
-### ESP32-CAM with SHT40
-
-Comming soon
+Please note that there are no LD2410B Sensor part for Fritzing so I used the LD2410 Sensor instead but the pins are the same, RX goes to TX and TX goes to RX.
 
 ## The Code
 
 Depending on your choice of functionality and requirements I have 3 variants of this board
 1. [ESP-8266](ESPHome/room_sensor_wifi_only.yaml), no frills just does the job [I still need to test this code].
-2. [ESP-32](ESPHome/room_sensor_bluetooth.yaml), if you need a Bluetooth proxy
+2. [ESP-32 S](ESPHome/room_sensor_bluetooth.yaml), if you need a Bluetooth proxy
 3. [The surveillance ESP32-CAM](ESPHome/room_sensor_camera.yaml), I have one to keep an eye on my dogs when I am away. [Work-in-progress]
 
 ## What comes next?
