@@ -5,10 +5,6 @@
 This example code is supplied **"as is"** with no warranties of any kind, it works on my setup but it des not mean it will work on yours without modifications or at all. This example is meant to point you in the right direction. I take no responsibilities on it's usage. 
 I've tried to document it sufficiently that it is readable and easy to understand.
 
-## History
-
-2023-08-23 First commit
-
 ## About 
 
 When I started out with Home Assistant and home automation it seemed the obvious choice to monitor temperature And, by extension, humidity. So I bought a few ESP-8266 and DHT22 and put myself to work. Little Did I know what came next...
@@ -72,8 +68,8 @@ Please note that there are no LD2410B Sensor part for Fritzing so I used the LD2
 ## The Code
 
 Depending on your choice of functionality and requirements I have 3 variants of this board
-1. [ESP-8266](ESPHome/room_sensor_wifi_only.yaml), no frills just does the job [I still need to test this code].
-2. [ESP-32S](ESPHome/room_sensor_bluetooth.yaml), if you need a Bluetooth proxy
+1. [ESP-8266](ESPHome/room_sensor_wifi_only.yaml), no frills just does the job, the code was tested on an ESP8266 D1 Mini.
+2. [ESP-32S](ESPHome/room_sensor_bluetooth.yaml), if you need a Bluetooth proxy, the code was tested on an ESP32 D1 Mini.
 3. [The surveillance ESP32-CAM](ESPHome/room_sensor_camera.yaml), I have one to keep an eye on my dogs when I am away. [Work-in-progress]
 
 ## What comes next?

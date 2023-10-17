@@ -2,9 +2,10 @@
 # Substitution Variables
 ################################################################################
 substitutions:
-  device_name: esphome_room_sensors
-  device_friendly_name: ESPHome Room Sensors
-  device_ip_address: xxx.xxx.xxx.xxx
+  device_name: esphome-room-sensor-esp32
+  device_internal_name: esphome_room_sensor_esp32
+  device_friendly_name: ESPHome Room Sensor ESP32
+  device_ip_address: 192.168.0.210
   device_sampling_time: 30s
 
 ################################################################################
@@ -27,16 +28,16 @@ esp32:
   board: wemos_d1_mini32
   framework:
     type: arduino
-    #version: 2.0.9 # Optional
 
 ################################################################################
 # Enable logging
 ################################################################################
 logger:
-  logs:
-    sensor: INFO
-    binary_sensor: INFO
-    text_sensor: INFO
+  baud_rate: 0
+  #logs:
+  #  sensor: INFO
+  #  binary_sensor: INFO
+  #  text_sensor: INFO
 
 ################################################################################
 # Enable Home Assistant API
@@ -62,8 +63,8 @@ wifi:
 
   manual_ip:
     static_ip: ${device_ip_address}
-    gateway: !secret gateway_address
-    subnet: !secret subnet_address
+    gateway: 192.168.0.1
+    subnet: 255.255.255.0
 
   # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
@@ -73,27 +74,11 @@ wifi:
 captive_portal:
 
 ################################################################################
-# Bluetooth
-################################################################################
-# Do not enable the web server if there is the bluetooth proxy or tracker!!!
-# Bluetooth Low Energy Tracker Hub
-bluetooth_proxy:
-  active: true
-
-esp32_ble_tracker:
-  id: ${device_name}_ble_tracker
-  scan_parameters:
-    interval: 1100ms
-    window: 1100ms
-    active: true
-
-################################################################################
 # Status led
 ################################################################################
 status_led:
   pin:
-    number: 2
-    inverted: false # Depends on your board and preferances
+    number: GPIO2
 
 ################################################################################
 # I2C
@@ -101,7 +86,7 @@ status_led:
 i2c:
   sda: GPIO21
   scl: GPIO22
-  scan: false # Set to true to find new devices
+  scan: true
 
 ################################################################################
 # UART
@@ -109,10 +94,29 @@ i2c:
 uart:
   id: ${device_internal_name}_uart_presence
   tx_pin: GPIO17
-  rx_pin: GPIO18
+  rx_pin: GPIO16
   baud_rate: 256000
   parity: NONE
   stop_bits: 1
+
+################################################################################
+# Bluetooth
+################################################################################
+#-------------------------------------------------------------------------------
+# Bluetooth Proxy
+#-------------------------------------------------------------------------------
+bluetooth_proxy:
+  active: true
+
+#-------------------------------------------------------------------------------
+# Bluetooth Low Energy Tracker Hub
+#-------------------------------------------------------------------------------
+esp32_ble_tracker:
+  id: ${device_internal_name}_ble_tracker
+  scan_parameters:
+    interval: 1100ms
+    window: 1100ms
+    active: true
 
 ################################################################################
 # LD2410 Sensor
@@ -180,22 +184,20 @@ binary_sensor:
   - platform: ld2410
     has_target:
       name: Presence
-      # Switch the screen off when no one is in the room
-      on_state:
-        then:
-          - light.toggle:
-              id: backlight
     has_moving_target:
       name: Moving Target
     has_still_target:
       name: Still Target
 
+################################################################################
+# Sensors
+################################################################################
 sensor:
   #-------------------------------------------------------------------------------
   # ESP Generic Sensors
   #-------------------------------------------------------------------------------
 
-  # Internal Temperature
+  # Internal Temperature [ESP 32 Only]
   - platform: internal_temperature
     name: Internal Temperature
     id: device_temperature
@@ -231,8 +233,10 @@ sensor:
                 (to_string(seconds) + "s")
               ).c_str();
 
+  # Weather Lightning
+
   #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  # Additional sensors
+  # Internal sensors
   #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
   #-------------------------------------------------------------------------------
@@ -258,25 +262,6 @@ sensor:
     update_interval: ${device_sampling_time}
 
   #-------------------------------------------------------------------------------
-  # CCS811 Air Quality Control Sensor (0x5A)
-  #-------------------------------------------------------------------------------
-  - platform: ccs811
-    eco2:
-      name: "eCO2 Value"
-      id: ${device_internal_name}_eco2
-    tvoc:
-      name: "Total Volatile Organic Compound"
-      id: ${device_internal_name}_tvoc
-      icon: mdi:heat-wave
-    version:
-      name: CCS811 Version
-      id: ${device_internal_name}_ccs811_version
-    address: 0x5A
-    temperature: ${device_internal_name}_dallas_temperature
-    humidity: ${device_internal_name}_relative_humidity
-    update_interval: ${device_sampling_time}
-
-  #-------------------------------------------------------------------------------
   # LD2410D Millimeter Wave Sensor
   #-------------------------------------------------------------------------------
   - platform: ld2410
@@ -286,57 +271,58 @@ sensor:
       name: Moving Distance
     still_distance:
       name: Still Distance
-    moving_energy:
-      name: Move Energy
-    still_energy:
-      name: Still Energy
-    detection_distance:
-      name: Detection Distance
-    g0:
-      move_energy:
-        name: g0 move energy
-      still_energy:
-        name: g0 still energy
-    g1:
-      move_energy:
-        name: g1 move energy
-      still_energy:
-        name: g1 still energy
-    g2:
-      move_energy:
-        name: g2 move energy
-      still_energy:
-        name: g2 still energy
-    g3:
-      move_energy:
-        name: g3 move energy
-      still_energy:
-        name: g3 still energy
-    g4:
-      move_energy:
-        name: g4 move energy
-      still_energy:
-        name: g4 still energy
-    g5:
-      move_energy:
-        name: g5 move energy
-      still_energy:
-        name: g5 still energy
-    g6:
-      move_energy:
-        name: g6 move energy
-      still_energy:
-        name: g6 still energy
-    g7:
-      move_energy:
-        name: g7 move energy
-      still_energy:
-        name: g7 still energy
-    g8:
-      move_energy:
-        name: g8 move energy
-      still_energy:
-        name: g8 still energy
+  # Moving energy is optional if you want to refine the sensors
+  #  moving_energy:
+  #    name: Move Energy
+  #  still_energy:
+  #    name: Still Energy
+  #  detection_distance:
+  #    name: Detection Distance
+  #  g0:
+  #    move_energy:
+  #      name: g0 move energy
+  #    still_energy:
+  #      name: g0 still energy
+  #  g1:
+  #    move_energy:
+  #      name: g1 move energy
+  #    still_energy:
+  #      name: g1 still energy
+  #  g2:
+  #    move_energy:
+  #      name: g2 move energy
+  #    still_energy:
+  #      name: g2 still energy
+  #  g3:
+  #    move_energy:
+  #      name: g3 move energy
+  #    still_energy:
+  #      name: g3 still energy
+  #  g4:
+  #    move_energy:
+  #      name: g4 move energy
+  #    still_energy:
+  #      name: g4 still energy
+  #  g5:
+  #    move_energy:
+  #      name: g5 move energy
+  #    still_energy:
+  #      name: g5 still energy
+  #  g6:
+  #    move_energy:
+  #      name: g6 move energy
+  #    still_energy:
+  #      name: g6 still energy
+  #  g7:
+  #    move_energy:
+  #      name: g7 move energy
+  #    still_energy:
+  #      name: g7 still energy
+  #  g8:
+  #    move_energy:
+  #      name: g8 move energy
+  #    still_energy:
+  #      name: g8 still energy
 
 ################################################################################
 # Switch
@@ -356,8 +342,9 @@ switch:
       name: "engineering mode"
     # To switch the Bluetooth on and off
     bluetooth:
-      name: "control bluetooth"
-      restore_mode: RESTORE_DEFAULT_OFF #Switch the BT off
+      name: "Control LD2410 bluetooth"
+      #Switch the BT off as we do not need it as we use the ESP
+      restore_mode: RESTORE_DEFAULT_OFF
 
 ################################################################################
 # Button
