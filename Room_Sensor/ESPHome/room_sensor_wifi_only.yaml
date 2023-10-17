@@ -2,8 +2,9 @@
 # Substitution Variables
 ################################################################################
 substitutions:
-  device_name: esphome_room_sensors_ESP8266
-  device_friendly_name: ESPHome Room Sensors
+  device_name: esphome-room-sensor
+  device_internal_name: esphome_room_sensor
+  device_friendly_name: ESPHome Room Sensor
   device_ip_address: xxx.xxx.xxx.xxx
   device_sampling_time: 30s
 
@@ -31,10 +32,10 @@ esp8266:
 ################################################################################
 logger:
   baud_rate: 0
-  logs:
-    sensor: INFO
-    binary_sensor: INFO
-    text_sensor: INFO
+  #logs:
+  #  sensor: INFO
+  #  binary_sensor: INFO
+  #  text_sensor: INFO
 
 ################################################################################
 # Enable Home Assistant API
@@ -58,25 +59,17 @@ wifi:
     - ssid: !secret wifi_ssid
       password: !secret wifi_password
 
+  power_save_mode: none
+
   manual_ip:
     static_ip: ${device_ip_address}
-    gateway: !secret gateway_address
-    subnet: !secret subnet_address
+    gateway: xxx.xxx.xxx.xxx
+    subnet: xxx.xxx.xxx.xxx
 
   # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
     ssid: ${device_friendly_name}
     password: !secret web_server_password
-
-################################################################################
-# Web Server
-################################################################################
-web_server:
-  port: 80
-  auth:
-    username: !secret web_server_user
-    password: !secret web_server_password
-  local: true
 
 captive_portal:
 
@@ -85,8 +78,7 @@ captive_portal:
 ################################################################################
 status_led:
   pin:
-    number: 2
-    inverted: false # Depends on your board and preferances
+    number: GPIO2
 
 ################################################################################
 # I2C
@@ -94,7 +86,7 @@ status_led:
 i2c:
   sda: GPIO4
   scl: GPIO5
-  scan: false # Set to true to find new devices
+  scan: true
 
 ################################################################################
 # UART
@@ -178,25 +170,13 @@ binary_sensor:
     has_still_target:
       name: Still Target
 
-  # LD2410
-  - platform: ld2410
-    has_target:
-      name: Presence
-      # Switch the screen off when no one is in the room
-      on_state:
-        then:
-          - light.toggle:
-              id: backlight
-    has_moving_target:
-      name: Moving Target
-    has_still_target:
-      name: Still Target
-
+################################################################################
+# Sensors
+################################################################################
 sensor:
   #-------------------------------------------------------------------------------
   # ESP Generic Sensors
   #-------------------------------------------------------------------------------
-
   # WiFi
   - platform: wifi_signal
     name: "WiFi Signal Sensor"
@@ -228,21 +208,20 @@ sensor:
               ).c_str();
 
   #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  # Additional sensors
+  # Internal sensors
   #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
   #-------------------------------------------------------------------------------
-  # DHT22
+  # SHT40 Sensors (0x44)
   #-------------------------------------------------------------------------------
-  - platform: dht
-    pin: GPIO16
+  - platform: sht4x
     temperature:
       name: "Temperature"
-      id: ${device_name}_temperature
+      id: temperature
     humidity:
-      name: "Humidity"
-      id: ${device_name}_humidity
-    model: DHT22
+      name: "Relative Humidity"
+      id: relative_humidity
+    precision: High
     update_interval: ${device_sampling_time}
 
   #-------------------------------------------------------------------------------
@@ -255,25 +234,6 @@ sensor:
     update_interval: ${device_sampling_time}
 
   #-------------------------------------------------------------------------------
-  # CCS811 Air Quality Control Sensor (0x5A)
-  #-------------------------------------------------------------------------------
-  - platform: ccs811
-    eco2:
-      name: "eCO2 Value"
-      id: ${device_internal_name}_eco2
-    tvoc:
-      name: "Total Volatile Organic Compound"
-      id: ${device_internal_name}_tvoc
-      icon: mdi:heat-wave
-    version:
-      name: CCS811 Version
-      id: ${device_internal_name}_ccs811_version
-    address: 0x5A
-    temperature: ${device_internal_name}_dallas_temperature
-    humidity: ${device_internal_name}_relative_humidity
-    update_interval: ${device_sampling_time}
-
-  #-------------------------------------------------------------------------------
   # LD2410D Millimeter Wave Sensor
   #-------------------------------------------------------------------------------
   - platform: ld2410
@@ -283,57 +243,58 @@ sensor:
       name: Moving Distance
     still_distance:
       name: Still Distance
-    moving_energy:
-      name: Move Energy
-    still_energy:
-      name: Still Energy
-    detection_distance:
-      name: Detection Distance
-    g0:
-      move_energy:
-        name: g0 move energy
-      still_energy:
-        name: g0 still energy
-    g1:
-      move_energy:
-        name: g1 move energy
-      still_energy:
-        name: g1 still energy
-    g2:
-      move_energy:
-        name: g2 move energy
-      still_energy:
-        name: g2 still energy
-    g3:
-      move_energy:
-        name: g3 move energy
-      still_energy:
-        name: g3 still energy
-    g4:
-      move_energy:
-        name: g4 move energy
-      still_energy:
-        name: g4 still energy
-    g5:
-      move_energy:
-        name: g5 move energy
-      still_energy:
-        name: g5 still energy
-    g6:
-      move_energy:
-        name: g6 move energy
-      still_energy:
-        name: g6 still energy
-    g7:
-      move_energy:
-        name: g7 move energy
-      still_energy:
-        name: g7 still energy
-    g8:
-      move_energy:
-        name: g8 move energy
-      still_energy:
-        name: g8 still energy
+  # Moving energy is optional if you want to refine the sensors
+  #  moving_energy:
+  #    name: Move Energy
+  #  still_energy:
+  #    name: Still Energy
+  #  detection_distance:
+  #    name: Detection Distance
+  #  g0:
+  #    move_energy:
+  #      name: g0 move energy
+  #    still_energy:
+  #      name: g0 still energy
+  #  g1:
+  #    move_energy:
+  #      name: g1 move energy
+  #    still_energy:
+  #      name: g1 still energy
+  #  g2:
+  #    move_energy:
+  #      name: g2 move energy
+  #    still_energy:
+  #      name: g2 still energy
+  #  g3:
+  #    move_energy:
+  #      name: g3 move energy
+  #    still_energy:
+  #      name: g3 still energy
+  #  g4:
+  #    move_energy:
+  #      name: g4 move energy
+  #    still_energy:
+  #      name: g4 still energy
+  #  g5:
+  #    move_energy:
+  #      name: g5 move energy
+  #    still_energy:
+  #      name: g5 still energy
+  #  g6:
+  #    move_energy:
+  #      name: g6 move energy
+  #    still_energy:
+  #      name: g6 still energy
+  #  g7:
+  #    move_energy:
+  #      name: g7 move energy
+  #    still_energy:
+  #      name: g7 still energy
+  #  g8:
+  #    move_energy:
+  #      name: g8 move energy
+  #    still_energy:
+  #      name: g8 still energy
 
 ################################################################################
 # Switch
