@@ -7,6 +7,9 @@
 ### ESP32 S3 with PSRAM with a 480*320 ILI9488 4in screen
 ![Version 0.2](Images/ESPHome-Energy-Display-Photo-v2.jpeg)
 
+### Raspberry Pi Pico W with a 240*320 ST7789 screen (WIP)
+![Version 0.2](Images/ESPHome-Pico-Energy-Display-Photo-v0.1.jpeg)
+
 ## Warning!
 
 This example code is supplied **"as is"** with no warranties of any kind, it works on my setup but it des not mean it will work on yours without modifications or at all. This example is meant to point you in the right direction. I take no responsibilities on it's usage. 
@@ -28,19 +31,27 @@ Since this display is to be mounted in the kitchen, I threw everything and the k
 ## The bill of materials
 
 ### ESP32 S with a 240*320 ILI9341 screen
-* ESP32, I used a NodeMCU ESP32S Development board, but any ESP32 would work, you'll need to readjust the pins accordingly.
-* A 10uf capacitor to force the ESP32 into programing mode, this is only required for the first upload.
-* Some Jumpers.
+* ESP32, I used a NodeMCU ESP32S Development board, but any ESP32 would work, you'll need to readjust the pins accordingly
+* A 10uf capacitor to force the ESP32 into programing mode, this is only required for the first upload
+* Some Jumpers
 * A breadboard
-* TFT SPI Touchscreen - I used a 3.2in 240*320 ILI9341. Please do not try to use a ILI9488, from what I gather ESPHome is not yet compatible with it.
+* TFT SPI Touchscreen - I used a 3.2in 240*320 ILI9341. Please do not try to use a ILI9488, from what I gather ESPHome is not yet compatible with it
 * A suitable USB cable for your ESP32
 
 ### ESP32 S3 with PSRAM with a 480*320 ILI9488 screen
 * ESP32 S3, I used a ESP32 S3 Development board.
-* Some Jumpers.
+* Some Jumpers
 * A breadboard
 * TFT SPI Touchscreen - I used a 4in 480*320 ILI9488.
 * A suitable USB cable for your ESP32
+
+### Raspberry Pi Pico W with a 240*320 ST7789 screen (Work in Progress and still a little buggy)
+* Raspberry Pi Pico W Development board [Micro Robotics](https://www.robotics.org.za/PICO-W)
+* Optional: Raspberry Pi Pico Expansion Board [Micro Robotics](https://www.robotics.org.za/W19343)
+* Some Jumpers
+* A breadboard
+* TFT SPI Touchscreen - I used a 2.8in 240*320 ST7789 [Micro Robotics](https://www.robotics.org.za/W19804)
+* A suitable USB cable for your Raspberry Pi Pico W 
 
 Optionally:
 
