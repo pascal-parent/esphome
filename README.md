@@ -1,3 +1,5 @@
+#IMPORTANT: This fork of my repository will soon be archived and moved to its new home (here)[https://github.com/homeautomatorza/ESPHome].
+
 # My ESPHome Scripts
 
 ***Note: This work is in progress!***
